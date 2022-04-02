@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row flex-grow-1">
+
+    <div class="col-7 withbg">
+        <div class="headingContainer">
+            <img src="{{ url_for('static',filename='styles/img/Candoor_logo_blue_01.svg') }}" alt="Candoor Logo"
+                class="logo">
+        </div>
+
+    </div>
+
+    <div class="col-5">
+        <div class="auth-form">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="notification is-danger">
+                {{ messages[0] }}. Go to <a href="{{ url_for('auth.login') }}">login page</a>.
+            </div>
+            {% endif %}
+            {% endwith %}
+            <form method="POST" action="/signup">
+                <h2><b>Sign Up</b></h2>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input class="form-control" type="email" name="email" placeholder="Email" autofocus="">
+                </div>
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input class="form-control" type="text" name="name" placeholder="Name" autofocus="">
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input class="form-control" type="password" name="password" placeholder="Password" autofocus="">
+                </div>
+
+                <button type="submit" class="btn btn-dark">Submit</button>
+            </form>
+
+
+        </div>
+    </div>
+</div>
+{% endblock %}

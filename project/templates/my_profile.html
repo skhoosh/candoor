@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="about_me">
+        <table class="about_me_table">
+            <tr>
+                <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
+                        height="200px" width="200px"></td>
+                <td class="about_me_td">
+                    <h2><b>{{ name }}</b></h2>
+                    <p><i>Headliner (e.g. Artist | Scientist | Musician)</i> </p>
+                    <p>
+                        Some description about myself goes here. I like to paint, draw and illustrate with Python.
+                        My favourite YouTube videos are about fish.
+                        It's a special interest of mine.
+                    </p>
+                    <button id="btnEditProfile" class="btn btn-light">Edit</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="ask_tell">
+        <div class="ask_tell_header">
+            <h4>Ask Me About</h4>
+        </div>
+        <div class="ask_tell_body" action="/">
+            <form action="POST">
+                <table id="askTable" class="ask_tell_table">
+                    {% for row in ask_me_dict %}
+                    <tr class="ask_tell_tr">
+                        <td class="ask_tell_td"><input type="checkbox" id={{ row.skill }} value="{{ row.skill }}"></td>
+                        <td class="ask_tell_td"><b>{{ row.skill }}</b></td>
+                        <td class="ask_tell_td">{{ row.note }}</td>
+                        <td class="ask_tell_td">{{ row.level }}</td>
+
+                    </tr>
+                    {% endfor %}
+
+                </table>
+                <br>
+                <button id="btnEditAskMe" type="button" class="btn btn-dark">Edit</button>
+                <button id="findPeopleAskMe" type="button" class="btn btn-dark">Find People Who Want to Hear
+                    More</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="ask_tell">
+        <div class="ask_tell_header">
+            <h4>Tell Me About</h4>
+        </div>
+        <div class="ask_tell_body" action="/">
+            <form action="POST">
+                <table id="tellTable" class="ask_tell_table">
+                    {% for row in tell_me_dict %}
+                    <tr class="ask_tell_tr">
+                        <td class="ask_tell_td"><input type="checkbox" id={{ row.skill }} value="{{ row.skill }}"></td>
+                        <td class="ask_tell_td"><b>{{ row.skill }}</b></td>
+                        <td class="ask_tell_td">{{ row.note }}</td>
+                        <td class="ask_tell_td">{{ row.level }}</td>
+
+                    </tr>
+                    {% endfor %}
+
+                </table>
+                <br>
+                <button id="btnEditTellMe" type="button" class="btn btn-dark">Edit</button>
+                <button id="findPeopleTellMe" type="button" class="btn btn-dark">Find People Who Can Tell Me
+                    More</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal- edit ABOUT ME  -->
+    <div id="editProfileAboutMe">
+        <div class="editFormDiv">
+            <p class="close" id="closeEditAboutMe">&times;</p> <br>
+            <form method="POST" action="/my_profile" id="myProfile">
+                <div class="mb-3">
+                    <label for="displayName" class="form-label">Display Name</label>
+                    <input class="form-control" type="text" name="displayName" autofocus="">
+                </div>
+
+                <div class="mb-3">
+                    <label for="headline" class="form-label">Headline</label>
+                    <input class="form-control" type="text" name="headline" autofocus="">
+                </div>
+
+                <div class="mb-3">
+                    <label for="aboutme" class="form-label">About Me</label>
+                    <textarea class="form-control" id="aboutme" name="aboutme" rows="5" cols="33"
+                        form="myProfile"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-dark">Save</button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal- edit ASK ME ABOUT  -->
+    <div id="editAskMeAbout">
+        <div class="editFormDiv">
+            <p class="close" id="closeEditAskMeAbout">&times;</p> <br>
+            <form method="POST" action="/my_profile" id="askMeAboutForm">
+                <div class="mb-3">
+                    <label for="expertise" class="form-label">What subject would you like to share about?</label>
+                    <input class="form-control" type="text" name="expertise" autofocus="">
+                </div>
+
+                <div class="mb-3">
+                    <label for="describeExpertise" class="form-label">Tell us more about your experience with
+                        this:</label>
+                    <textarea class="form-control" id="describeExpertise" name="describeExpertise" rows="3"
+                        form="askMeAboutForm"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="expertiseLevel" class="form-label">Choose your level of expertise:</label>
+                    <select class="form-select" name="expertiseLevel" id="expertiseLevel">
+                        <option value="expert">Ask me anything! I'm an expert</option>
+                        <option value="learning">Ask me about my learning journey</option>
+                        <option value="hobby">Ask me about my hobby</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-dark">Save</button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal- edit TELL ME ABOUT  -->
+    <div id="editTellMeAbout">
+        <div class="editFormDiv">
+            <p class="close" id="closeEditTellMeAbout">&times;</p> <br>
+            <form method="POST" action="/my_profile" id="tellMeAboutForm">
+                <div class="mb-3">
+                    <label for="aspiration" class="form-label">What subject would you like to learn about?</label>
+                    <input class="form-control" type="text" name="aspiration" autofocus="">
+                </div>
+
+                <div class="mb-3">
+                    <label for="describeaspiration" class="form-label">Tell us more about what you are looking for:</label>
+                    <textarea class="form-control" id="describeAspiration" name="describeAspiration" rows="3"
+                        form="tellMeAboutForm"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="aspirationLevel" class="form-label">Choose your level of aspiration:</label>
+                    <select class="form-select" name="aspirationLevel" id="aspirationLevel">
+                        <option value="expert">I'm curious about the hobby</option>
+                        <option value="learning">I'm trying to learn about this</option>
+                        <option value="hobby">Looking for a potential career switch</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-dark">Save</button>
+
+            </form>
+        </div>
+    </div>
+
+
+
+    <script>
+        // ============== ENABLE or DISABLE FIND PEOPLE ===============
+        if (document.getElementById("askTable").rows.length) {
+            document.getElementById("findPeopleAskMe").disabled = false;
+        } else {
+            document.getElementById("findPeopleAskMe").disabled = true;
+        }
+
+        if (document.getElementById("tellTable").rows.length) {
+            document.getElementById("findPeopleTellMe").disabled = false;
+        } else {
+            document.getElementById("findPeopleTellMe").disabled = true;
+        }
+
+        // ============== EDIT PROFILE =================
+        // Open Edit Profile
+        document.getElementById("btnEditProfile").onclick = function () {
+            document.getElementById("editProfileAboutMe").style.display = "block";
+        }
+
+        // Close Edit Profile 
+        document.getElementById("closeEditAboutMe").onclick = function () {
+            document.getElementById("editProfileAboutMe").style.display = "none";
+
+        }
+
+        // ============== EDIT ASK ME ABOUT =================
+        // Open Edit Profile
+        document.getElementById("btnEditAskMe").onclick = function () {
+            document.getElementById("editAskMeAbout").style.display = "block";
+        }
+
+        // Close Edit Profile 
+        document.getElementById("closeEditAskMeAbout").onclick = function () {
+            document.getElementById("editAskMeAbout").style.display = "none";
+
+        }
+
+        
+        // ============== EDIT TELL ME ABOUT =================
+        // Open Edit Profile
+        document.getElementById("btnEditTellMe").onclick = function () {
+            document.getElementById("editTellMeAbout").style.display = "block";
+        }
+
+        // Close Edit Profile 
+        document.getElementById("closeEditTellMeAbout").onclick = function () {
+            document.getElementById("editTellMeAbout").style.display = "none";
+
+        }
+
+
+    </script>
+
+</div>
+{% endblock %}

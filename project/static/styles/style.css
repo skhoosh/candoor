@@ -1,0 +1,209 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 1rem;
+  height:100vh;
+  background-color: #fafafaff;
+  /* color: #383838ff; */
+}
+
+h3 {
+  font-family: 'Shrikhand', cursive;
+}
+
+.searchForm{
+  display: inline-block;
+  width: auto;
+}
+
+.navbar-dark {
+  background: #1d1d25ff !important;
+}
+
+.btn:focus, .btn:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.btn-dark {
+  background: #32323eff !important;
+  border-color: rgb(68, 68, 85) !important;
+}
+
+.btn-dark:hover {
+  background: rgb(37, 37, 46) !important; 
+  color:#eba3d8ff !important;
+}
+
+.withbg {
+  /* background-image: url("/static/styles/img/fluid_bg.jpg"); */
+  background-size:100%;
+  background-color: #cccccc;
+  /* color: #fff; */
+  padding: 100px 25px;
+  font-family: Montserrat, sans-serif;
+  text-align: center;
+}
+
+.headingContainer {
+  background-color: rgba(255, 255, 255, 0.70);
+  padding: 20px;
+}
+
+.words {
+  text-align: center;
+  margin: auto;
+}
+
+.col-7 {
+  background-color: #fafafaff;
+}
+
+.col-5 {
+  background-color: #eba3d8ff;
+}
+
+.logo {
+  margin: auto;
+  display: block;
+  width: 65%;
+  z-index: 100;
+  position: relative;
+  top: 12vh;
+}
+
+
+.auth-form {
+  background: #ffffffff;
+  border: 2px solid #32323eff;
+  border-radius: 25px;
+  box-shadow: 10px 10px #32323eff;
+  color: #3d3d3dff;
+  position: relative;
+  padding: 5vw;
+  right: 5vw;
+  margin: 0 auto;
+  /* min-height: 60%; */
+  top: 50px;
+}
+
+/* form {
+  margin: auto;
+  top: 25%;
+} */
+
+
+/* My profile  */
+/* about me */
+.about_me {
+  border: 1px solid #dbdbdb;
+  border-radius: 10px;
+  background-color: white;
+  padding: 30px; 
+  margin: 25px auto 20px;
+  max-width: 1000px;
+}
+
+.about_me_td {
+  padding: 10px 20px;
+}
+
+.about_me_table td + td {
+  border-left: 0.5px solid #dbdbdb;
+}
+
+/* ask me about  */
+/* .card-header {
+  background-color: #383838ff !important;
+  color: white !important;
+} */
+
+.ask_tell {
+  border: 1px solid #dbdbdb;
+  border-radius:10px;
+  background-color: white;
+  /* padding: 0 30px 30px;  */
+  margin: 25px auto 20px;
+  max-width: 1000px;
+}
+
+
+.ask_tell_header {
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 0;
+  background-color: #32323eff;
+  color: white;
+  padding: 15px 20px 1px;
+}
+
+.ask_tell_body {
+  padding: 30px;
+}
+
+.ask_tell_tr {
+  border-bottom: 0.5px solid #dbdbdb;
+}
+
+.ask_tell_td {
+  padding: 10px 20px;
+}
+
+/* ========= Edit profile forms ======== */
+.btn-light {
+  background: #e4e6eb !important;
+  /* border-color: #0C0D19 !important; */
+}
+
+.btn-light:hover {
+  background: #d6d8df !important; 
+  /* color:#eba3d8ff !important; */
+}
+
+.editFormDiv {
+  background-color: white;
+  border-radius:10px;
+  padding: 45px;
+  margin: auto;
+  border: 1px solid #888;
+  width: 70%;
+}
+
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: block;
+}
+
+.close:hover {
+  color: #8b8b8b;
+  cursor: pointer;
+}
+
+#editProfileAboutMe, #editAskMeAbout, #editTellMeAbout {
+  display: none; 
+  position: fixed;
+  z-index: 100;
+  padding-top: 40px;
+  left: 0; 
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+/* 
+#editAskMeAbout {
+  display: none; 
+  position: fixed;
+  z-index: 100;
+  padding-top: 40px;
+  left: 0; 
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+} */

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="255.53653mm"
+   height="268.33582mm"
+   viewBox="0 0 905.4444 950.79619"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="Speech_bubble_01.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="123.43649"
+     inkscape:cy="486.82665"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1280"
+     inkscape:window-height="657"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(184.15078,-71.249856)">
+    <path
+       style="font-style:normal;font-weight:normal;font-size:medium;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;opacity:1;fill:#383838;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2.41116285;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 84.239133,71.249856 c -49.5168,0 -89.3799001,45.850794 -89.3799001,102.805284 l 0,202.95379 -148.6129329,69.74429 148.6129329,52.55422 0,386.156 c 0,56.9546 39.8631001,102.8054 89.3799001,102.8054 l 547.674697,0 c 49.5168,0 89.3798,-45.8508 89.3798,-102.8054 l 0,-711.4083 c 0,-56.95449 -39.863,-102.805284 -89.3798,-102.805284 z"
+       id="rect4284-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sscccsssssss"
+       inkscape:export-filename="C:\Users\Stephanie\Desktop\00 Hackathon\002 Test\static\styles\img\speech_bubble_01.png"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+    <path
+       style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3.2110002;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 55.447333,103.42173 c -49.5168001,0 -89.3798,45.85078 -89.3798,102.80528 l 0,202.95372 -148.613073,69.74427 148.613073,52.55415 0,386.15605 c 0,56.9545 39.8629999,102.8053 89.3798,102.8053 l 547.674697,0 c 49.5168,0 89.3798,-45.8508 89.3798,-102.8053 l 0,-711.40819 c 0,-56.9545 -39.863,-102.80528 -89.3798,-102.80528 z"
+       id="rect4284"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sscccsssssss"
+       inkscape:export-filename="C:\Users\Stephanie\Desktop\00 Hackathon\002 Test\static\styles\img\speech_bubble_01.png"
+       inkscape:export-xdpi="200"
+       inkscape:export-ydpi="200" />
+  </g>
+</svg>
