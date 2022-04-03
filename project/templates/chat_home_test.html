@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row messagesContainer">
+        <div class="col-4 chatPeople">
+            <div class="chatPeopleLabel">
+                <h4>Friends</h4>
+            </div>
+            {% for row in friends_list %}
+            <div class="chatPerson">
+                <button type="submit" class="btn btn-dark">
+                    {{ row.name }}
+                </button>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="col-8 chatBox">
+            <div class="chatBoxLabel">
+                <h4>Messages</h4>
+            </div>
+
+            <div id="messages">
+
+            </div>
+            <!-- form will not be GET/POST request, just track the submission to get the msg -->
+            <div id="messageArea">
+                <table>
+                    <tr>
+                        <form id="message_input_form">
+                            <td>
+                                <textarea name="message" id="message_input" cols="80" rows="3"
+                                    placeholder="Enter your message here"></textarea>
+                                <!-- <div id="textBox" contenteditable="true" name="textBox">
+
+                            </div> -->
+                            </td>
+                            <td>
+                                <button id="sendMsg" type="submit" class="btn btn-light">Send</button>
+                            </td>
+                        </form>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+<script>
+    const socket = io.connect('http://127.0.0.1:5000');
+
+    // when socket event triggered
+    socket.on('connect', function () {
+        socket.emit('join_room', {
+            username: "{{ username }}",
+            room: "{{ room }}"
+        });
+
+        // To send messages
+        let message_input = document.getElementById('message_input');
+        // e - event 
+        document.getElementById('message_input_form').onsubmit = function (e) {
+            e.preventDefault(); // i.e. prevent default event when clicking a submit button 
+            let message = message_input.value.trim(); // remove white spaces from message
+            if (message.length) { // check that message length is more than 0 
+                socket.emit('send_message', {
+                    username: "{{ username }}",
+                    room: "{{ room }}",
+                    message: message
+                })
+
+            }
+            message_input.value = ''; // empty message input 
+            message_input.focus(); // focus cursor back on message input text field 
+        }
+    });
+
+    // handle receive message 
+    socket.on('receive_message', function (data) {
+        const newNode = document.createElement('div')
+        newNode.innerHTML = `<b>${data.username}:&nbsp;</b> ${data.message}`
+        document.getElementById('messages').appendChild(newNode);
+    })
+
+    // when someone else joins the room 
+    socket.on('join_room_announcement', function (data) {
+        console.log(data)
+        // put in messages:
+        const newNode = document.createElement('div')
+        newNode.innerHTML = `<b>${data.username}</b> has joined the room`
+        document.getElementById('messages').appendChild(newNode);
+    })
+</script>
+
+</div>
+{% endblock %}

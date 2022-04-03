@@ -10,11 +10,9 @@
                         height="200px" width="200px"></td>
                 <td class="about_me_td">
                     <h2><b>{{ name }}</b></h2>
-                    <p><i>Headliner (e.g. Artist | Scientist | Musician)</i> </p>
+                    <p><i>{{ about_me_dict.headline }}</i> </p>
                     <p>
-                        Some description about myself goes here. I like to paint, draw and illustrate with Python.
-                        My favourite YouTube videos are about fish.
-                        It's a special interest of mine.
+                        {{ about_me_dict.about_me }}
                     </p>
                     <button id="btnEditProfile" class="btn btn-light">Edit</button>
                 </td>
@@ -77,7 +75,7 @@
     <div id="editProfileAboutMe">
         <div class="editFormDiv">
             <p class="close" id="closeEditAboutMe">&times;</p> <br>
-            <form method="POST" action="/my_profile" id="myProfile">
+            <form method="POST" action="/edit_about_me" id="myProfile">
                 <div class="mb-3">
                     <label for="displayName" class="form-label">Display Name</label>
                     <input class="form-control" type="text" name="displayName" autofocus="">
@@ -104,7 +102,7 @@
     <div id="editAskMeAbout">
         <div class="editFormDiv">
             <p class="close" id="closeEditAskMeAbout">&times;</p> <br>
-            <form method="POST" action="/my_profile" id="askMeAboutForm">
+            <form method="POST" action="/edit_ask_me_about" id="askMeAboutForm">
                 <div class="mb-3">
                     <label for="expertise" class="form-label">What subject would you like to share about?</label>
                     <input class="form-control" type="text" name="expertise" autofocus="">
@@ -136,14 +134,14 @@
     <div id="editTellMeAbout">
         <div class="editFormDiv">
             <p class="close" id="closeEditTellMeAbout">&times;</p> <br>
-            <form method="POST" action="/my_profile" id="tellMeAboutForm">
+            <form method="POST" action="/edit_tell_me_about" id="tellMeAboutForm">
                 <div class="mb-3">
                     <label for="aspiration" class="form-label">What subject would you like to learn about?</label>
                     <input class="form-control" type="text" name="aspiration" autofocus="">
                 </div>
 
                 <div class="mb-3">
-                    <label for="describeaspiration" class="form-label">Tell us more about what you are looking for:</label>
+                    <label for="describeAspiration" class="form-label">Tell us more about what you are looking for:</label>
                     <textarea class="form-control" id="describeAspiration" name="describeAspiration" rows="3"
                         form="tellMeAboutForm"></textarea>
                 </div>

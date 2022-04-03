@@ -9,20 +9,19 @@
                 <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
                         height="200px" width="200px"></td>
                 <td class="about_me_td">
-                    <h2><b>{{ name }}</b></h2>
-                    <i>Headliner (e.g. Artist | Scientist | Musician)</i> <br> <br>
-                    Some description about myself goes here. I like to paint, draw and illustrate with Python.
-                    My favourite YouTube videos are about fish.
-                    It's a special interest of mine.
+                    <h2><b>{{ about_me_dict.name }}</b></h2>
+                    <p><i>{{ about_me_dict.headline }}</i> </p>
+                    <p>
+                        {{ about_me_dict.about_me }}
+                    </p>
                 </td>
             </tr>
         </table>
     </div>
+
     <div class="ask_tell">
         <div class="ask_tell_header">
             <h4>Ask Me About</h4>
-            <button onclick="location.href='/edit-profile'" type="button">
-                www.example.com</button>
         </div>
         <div class="ask_tell_body" action="/">
             <form action="POST">
@@ -39,7 +38,8 @@
 
                 </table>
                 <br>
-                <button type="button" class="btn btn-dark">Find People Who Want to Hear More</button>
+                <p><b>Send connection request to {{ about_me_dict.name }}</b></p>
+                <button type="button" class="btn btn-dark">Send</button>
             </form>
         </div>
     </div>
@@ -63,7 +63,8 @@
 
                 </table>
                 <br>
-                <button type="button" class="btn btn-dark">Find People Who Can Tell Me More</button>
+                <p><b>Send connection request to {{ about_me_dict.name }}</b></p>
+                <button type="button" class="btn btn-dark">Send</button>
             </form>
         </div>
     </div>

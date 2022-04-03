@@ -9,13 +9,16 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="199.46385mm"
+   width="215.08528mm"
    height="61.153488mm"
-   viewBox="0 0 706.76168 216.68559"
+   viewBox="0 0 762.1132 216.68559"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="Candoor_logo_01.svg">
+   sodipodi:docname="Candoor_logo_01.svg"
+   inkscape:export-filename="C:\Users\Stephanie\Desktop\00 Hackathon\003 Design\Candoor_logo_01.png"
+   inkscape:export-xdpi="80"
+   inkscape:export-ydpi="80">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,11 +28,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="954.09511"
-     inkscape:cy="-145.94292"
+     inkscape:zoom="1.4"
+     inkscape:cx="212.91246"
+     inkscape:cy="-7.9092029"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g4199"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
@@ -56,7 +59,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-29.476319,-355.44798)">
+     transform="translate(-29.593507,-355.44798)">
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
@@ -151,7 +154,7 @@
            y="629.45496"
            x="149.04085"
            id="tspan4266"
-           sodipodi:role="line">The space for candid conversations</tspan></text>
+           sodipodi:role="line">Your doorway to candid conversations</tspan></text>
     </g>
   </g>
 </svg>
