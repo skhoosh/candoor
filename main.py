@@ -41,8 +41,8 @@ if createGlobalSchema:
     CREATE VERTEX message (PRIMARY_ID id INT, text STRING, time DATETIME)
     CREATE UNDIRECTED EDGE has_gender (From person, To gender)
     CREATE UNDIRECTED EDGE located_at (From person, To location)
-    CREATE UNDIRECTED EDGE has_aspiration (From person, To speciality, description STRING, interest_level int, looking_to_mentor BOOL DEFAULT "true")
-    CREATE UNDIRECTED EDGE has_expertise (From person, To speciality, description STRING, proficiency_level int, willing_to_mentor BOOL DEFAULT "true")
+    CREATE UNDIRECTED EDGE has_aspiration (From person, To speciality, num INT, description STRING, interest_level int, looking_to_mentor BOOL DEFAULT "true")
+    CREATE UNDIRECTED EDGE has_expertise (From person, To speciality, num INT, description STRING, proficiency_level int, willing_to_mentor BOOL DEFAULT "true")
     CREATE DIRECTED EDGE send_message (From person, To message) WITH REVERSE_EDGE="reverse_send_message"
     CREATE DIRECTED EDGE receive_message (From message, To person) WITH REVERSE_EDGE="reverse_receive_message"
     CREATE UNDIRECTED EDGE friend (From person, To person)
@@ -80,11 +80,11 @@ if loadGraph:
       }
       CREATE LOADING JOB load_aspirationFile FOR GRAPH candoor {
       DEFINE FILENAME myfile;
-      LOAD myfile TO EDGE has_aspiration VALUES ($0, $1, $2, $3, $4) USING SEPARATOR=",", EOL="\\n", QUOTE="double";
+      LOAD myfile TO EDGE has_aspiration VALUES ($0, $1, $2, $3, $4, $5) USING SEPARATOR=",", EOL="\\n", QUOTE="double";
       }
       CREATE LOADING JOB load_expertiseFile FOR GRAPH candoor {
       DEFINE FILENAME myfile;
-      LOAD myfile TO EDGE has_expertise VALUES ($0, $1, $2, $3, $4) USING SEPARATOR=",", EOL="\\n", QUOTE="double";
+      LOAD myfile TO EDGE has_expertise VALUES ($0, $1, $2, $3, $4, $5) USING SEPARATOR=",", EOL="\\n", QUOTE="double";
       }
       CREATE LOADING JOB load_messageFile FOR GRAPH candoor {
       DEFINE FILENAME myfile;
