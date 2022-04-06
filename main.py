@@ -18,11 +18,11 @@ def getgraphconnection(conn, hostName, userName, password, graphName):
     return conn
 
 
-clearAll = True
-createGlobalSchema = True
-createGraph = True
+clearAll = False
+createGlobalSchema = False
+createGraph = False
 connectToGraph = True
-loadGraph = True
+loadGraph = False
 dropQueries = True
 installQueries = True
 
@@ -41,7 +41,7 @@ if createGlobalSchema:
     CREATE VERTEX message (PRIMARY_ID id INT, text STRING, time DATETIME)
     CREATE UNDIRECTED EDGE has_gender (From person, To gender)
     CREATE UNDIRECTED EDGE located_at (From person, To location)
-    CREATE UNDIRECTED EDGE has_aspiration (From person, To speciality, num INT, description STRING, interest_level int, looking_to_mentor BOOL DEFAULT "true")
+    CREATE UNDIRECTED EDGE has_aspiration (From person, To speciality, num INT, description STRING, interest_level int, looking_for_mentor BOOL DEFAULT "true")
     CREATE UNDIRECTED EDGE has_expertise (From person, To speciality, num INT, description STRING, proficiency_level int, willing_to_mentor BOOL DEFAULT "true")
     CREATE DIRECTED EDGE send_message (From person, To message) WITH REVERSE_EDGE="reverse_send_message"
     CREATE DIRECTED EDGE receive_message (From message, To person) WITH REVERSE_EDGE="reverse_receive_message"
@@ -194,12 +194,29 @@ if installQueries:
         INSERT INTO located_at (FROM, TO) VALUES (id_para person, country_para location);       
     }
     INSTALL QUERY createnewuser
+    
+    CREATE QUERY getProfilePage_bypersonid(INT id_para) FOR GRAPH candoor {
+        ListAccum<Edge<has_aspiration>> @aspiration;
+        ListAccum<Edge<has_expertise>> @expertise;
+        
+        start = {person.*};
+        result = SELECT s FROM start:s - (:e) - speciality:sp
+            WHERE s.id == id_para
+            
+            ACCUM
+                IF e.type == "has_aspiration" THEN
+                    s.@aspiration += e
+                ELSE IF e.type == "has_expertise" THEN
+                    s.@expertise += e
+                END;
+        
+        PRINT result;
+    }
+    INSTALL QUERY getProfilePage_bypersonid
     '''
 
     results = conn.gsql(queries_gsql)
     print(results)
-
-
 
 
 
