@@ -143,7 +143,7 @@ if loadGraph:
     print(results)
 
 if dropQueries:
-    result = conn.gsql("DROP QUERY ALL DROP QUERY *")
+    result = conn.gsql("DROP QUERY ALL")
     print(result)
 
 if installQueries:
@@ -173,7 +173,7 @@ if installQueries:
     }
     INSTALL QUERY getmaxpersonid
 
-    CREATE QUERY createnewuser(INT id_para, STRING name_para, STRING email_para, STRING password_para, STRING gender_para, STRING country_para) FOR GRAPH candoor {        
+    CREATE QUERY createnewuser(INT id_para, STRING name_para, STRING email_para, STRING password_para, STRING gender_para, STRING country_para) FOR GRAPH candoor {
         # create new person vertex
         INSERT INTO person (PRIMARY_ID, name, email, password) VALUES (id_para, name_para, email_para, password_para);
 
@@ -213,7 +213,74 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY getProfilePage_bypersonid
-    '''
+    
+    CREATE QUERY add_aspiration(INT personid_para, STRING speciality_para, INT num_para, STRING description_para, INT interest_level_para, BOOL looking_for_mentor_para) FOR GRAPH candoor {
+        # add a new has_aspiration edge and add/update speciality vertex
+        INSERT INTO speciality (PRIMARY_ID) VALUES (speciality_para);
+
+        INSERT INTO has_aspiration (FROM, TO, num, description, interest_level, looking_for_mentor) VALUES (personid_para person, speciality_para speciality, num_para, description_para, interest_level_para, looking_for_mentor_para);
+    }
+    INSTALL QUERY add_aspiration
+    
+    CREATE QUERY update_aspiration(Vertex<person> personid_vertex, STRING speciality_para, INT num_para, STRING description_para, INT interest_level_para, BOOL looking_for_mentor_para) FOR GRAPH candoor {
+        # update has_aspiration edge and add/update speciality vertex
+        
+        start = {personid_vertex};        
+        result = SELECT sp FROM start:s - (has_aspiration:e) - speciality:sp
+            WHERE e.num == num_para
+            
+            ACCUM
+                DELETE (e);
+                INSERT INTO speciality (PRIMARY_ID) VALUES (speciality_para);
+                INSERT INTO has_aspiration (FROM, TO, num, description, interest_level, looking_for_mentor) VALUES (personid_vertex, speciality_para speciality, num_para, description_para, interest_level_para, looking_for_mentor_para);
+
+        SumAccum<INT> @@asp_edge_count;
+
+        # delete speciality vertex if this person is the only one using the vertex
+        result2 = SELECT s FROM result:s - (:e) - person:p
+            ACCUM
+                @@asp_edge_count += 1
+            
+            POST-ACCUM
+                IF @@asp_edge_count == 1 THEN
+                    DELETE (s)
+                END;
+    }
+    INSTALL QUERY update_aspiration
+    
+    CREATE QUERY delete_aspiration(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
+        start = {personid_vertex};        
+        result = SELECT s FROM start:s - (has_aspiration:e) - speciality:sp
+            ACCUM
+                IF e.num == num_para THEN
+                    DELETE (e)
+                ELSE IF e.num > num_para THEN
+                    e.num = e.num - 1
+                END;
+    }
+    INSTALL QUERY delete_aspiration
+
+    CREATE QUERY clean_speciality(Vertex<speciality> specialityarea_vertex) FOR GRAPH candoor {
+        # delete speciality vertex if no longer in use
+
+        SumAccum<INT> @@sp_edge_count;
+
+        start = {specialityarea_vertex};
+        result = SELECT s FROM start:s - (:e) - person:p
+            ACCUM
+                @@sp_edge_count += 1
+
+            POST-ACCUM
+                IF @@sp_edge_count == 1 THEN
+                    DELETE (s)
+                END;
+    }
+    INSTALL QUERY clean_speciality
+
+'''
+
+
+
 
     results = conn.gsql(queries_gsql)
     print(results)
@@ -225,3 +292,8 @@ if installQueries:
 # results = conn.gsql("USE GRAPH candoor SHOW JOB *")
 # results = conn.gsql("DROP JOB ALL")
 # print(results)
+
+
+'''
+
+    '''
