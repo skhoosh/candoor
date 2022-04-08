@@ -18,11 +18,11 @@ def getgraphconnection(conn, hostName, userName, password, graphName):
     return conn
 
 
-clearAll = False
-createGlobalSchema = False
-createGraph = False
+clearAll = True
+createGlobalSchema = True
+createGraph = True
 connectToGraph = True
-loadGraph = False
+loadGraph = True
 dropQueries = True
 installQueries = True
 
@@ -217,7 +217,6 @@ if installQueries:
     CREATE QUERY add_aspiration(INT personid_para, STRING speciality_para, INT num_para, STRING description_para, INT interest_level_para, BOOL looking_for_mentor_para) FOR GRAPH candoor {
         # add a new has_aspiration edge and add/update speciality vertex
         INSERT INTO speciality (PRIMARY_ID) VALUES (speciality_para);
-
         INSERT INTO has_aspiration (FROM, TO, num, description, interest_level, looking_for_mentor) VALUES (personid_para person, speciality_para speciality, num_para, description_para, interest_level_para, looking_for_mentor_para);
     }
     INSTALL QUERY add_aspiration
@@ -234,31 +233,37 @@ if installQueries:
                 INSERT INTO speciality (PRIMARY_ID) VALUES (speciality_para);
                 INSERT INTO has_aspiration (FROM, TO, num, description, interest_level, looking_for_mentor) VALUES (personid_vertex, speciality_para speciality, num_para, description_para, interest_level_para, looking_for_mentor_para);
 
-        SumAccum<INT> @@asp_edge_count;
+        SumAccum<INT> @@sp_edge_count;
 
         # delete speciality vertex if this person is the only one using the vertex
         result2 = SELECT s FROM result:s - (:e) - person:p
             ACCUM
-                @@asp_edge_count += 1
+                @@sp_edge_count += 1
             
             POST-ACCUM
-                IF @@asp_edge_count == 1 THEN
+                IF @@sp_edge_count == 1 THEN
                     DELETE (s)
                 END;
     }
     INSTALL QUERY update_aspiration
     
     CREATE QUERY delete_aspiration(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
-        start = {personid_vertex};        
+        start = {personid_vertex};
+        DELETE e FROM start:s - (has_aspiration:e) - speciality:sp
+            WHERE e.num == num_para;
+    }
+    INSTALL QUERY delete_aspiration
+    
+    CREATE QUERY reorder_aspiration(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
+        start = {personid_vertex};
+
         result = SELECT s FROM start:s - (has_aspiration:e) - speciality:sp
             ACCUM
-                IF e.num == num_para THEN
-                    DELETE (e)
-                ELSE IF e.num > num_para THEN
+                IF e.num > num_para THEN
                     e.num = e.num - 1
                 END;
     }
-    INSTALL QUERY delete_aspiration
+    INSTALL QUERY reorder_aspiration 
 
     CREATE QUERY clean_speciality(Vertex<speciality> specialityarea_vertex) FOR GRAPH candoor {
         # delete speciality vertex if no longer in use
@@ -276,6 +281,57 @@ if installQueries:
                 END;
     }
     INSTALL QUERY clean_speciality
+
+    CREATE QUERY add_expertise(INT personid_para, STRING speciality_para, INT num_para, STRING description_para, INT proficiency_level_para, BOOL willing_to_mentor_para) FOR GRAPH candoor {
+        # add a new has_expertise edge and add/update speciality vertex
+        INSERT INTO speciality (PRIMARY_ID) VALUES (speciality_para);
+        INSERT INTO has_expertise (FROM, TO, num, description, proficiency_level, willing_to_mentor) VALUES (personid_para person, speciality_para speciality, num_para, description_para, proficiency_level_para, willing_to_mentor_para);
+    }
+    INSTALL QUERY add_expertise
+    
+    CREATE QUERY update_expertise(Vertex<person> personid_vertex, STRING speciality_para, INT num_para, STRING description_para, INT proficiency_level_para, BOOL willing_to_mentor_para) FOR GRAPH candoor {
+        # update has_expertise edge and add/update speciality vertex
+        
+        start = {personid_vertex};        
+        result = SELECT sp FROM start:s - (has_expertise:e) - speciality:sp
+            WHERE e.num == num_para
+            
+            ACCUM
+                DELETE (e);
+                INSERT INTO speciality (PRIMARY_ID) VALUES (speciality_para);
+                INSERT INTO has_expertise (FROM, TO, num, description, proficiency_level, willing_to_mentor) VALUES (personid_vertex, speciality_para speciality, num_para, description_para, proficiency_level_para, willing_to_mentor_para);
+
+        SumAccum<INT> @@sp_edge_count;
+
+        # delete speciality vertex if this person is the only one using the vertex
+        result2 = SELECT s FROM result:s - (:e) - person:p
+            ACCUM
+                @@sp_edge_count += 1
+            
+            POST-ACCUM
+                IF @@sp_edge_count == 1 THEN
+                    DELETE (s)
+                END;
+    }
+    INSTALL QUERY update_expertise
+    
+    CREATE QUERY delete_expertise(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
+        start = {personid_vertex};          
+        DELETE e FROM start:s - (has_expertise:e) - speciality:sp
+            WHERE e.num == num_para;
+    }
+    INSTALL QUERY delete_expertise
+    
+    CREATE QUERY reorder_expertise(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
+        start = {personid_vertex};
+        result = SELECT s FROM start:s - (has_expertise:e) - speciality:sp
+            ACCUM
+                IF e.num > num_para THEN
+                    e.num = e.num - 1
+                END;
+    }
+    INSTALL QUERY reorder_expertise
+
 
 '''
 

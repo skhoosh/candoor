@@ -87,7 +87,35 @@ def delete_aspiration(personid, speciality, num):
     params = {"personid_vertex": personid,
               "num_para": num}
     results = conn.runInstalledQuery("delete_aspiration", params=params)
+    results = conn.runInstalledQuery("reorder_aspiration", params=params)
+    results = conn.runInstalledQuery("clean_speciality", params={"specialityarea_vertex": speciality})
 
+
+def add_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor):
+    params = {"personid_para": personid,
+              "speciality_para": speciality,
+              "num_para": num,
+              "description_para": description,
+              "proficiency_level_para": proficiency_level,
+              "willing_to_mentor_para": willing_to_mentor}
+    results = conn.runInstalledQuery("add_expertise", params=params)
+
+
+def update_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor):
+    params = {"personid_vertex": personid,
+              "speciality_para": speciality,
+              "num_para": num,
+              "description_para": description,
+              "proficiency_level_para": proficiency_level,
+              "willing_to_mentor_para": willing_to_mentor}
+    results = conn.runInstalledQuery("update_expertise", params=params)
+
+
+def delete_expertise(personid, speciality, num):
+    params = {"personid_vertex": personid,
+              "num_para": num}
+    results = conn.runInstalledQuery("delete_expertise", params=params)
+    results = conn.runInstalledQuery("reorder_expertise", params=params)
     results = conn.runInstalledQuery("clean_speciality", params={"specialityarea_vertex": speciality})
 
 
@@ -99,3 +127,6 @@ add_aspiration(1,"tigergraph",4,"want to master tg",1,True)
 update_aspiration(1,"Machine Learning",1,"I'm interested to learn machine learning.",3,True)
 delete_aspiration(1,"medicine",2)
 
+add_expertise(1,"tigergraph gsql",2,"I have some expertise writing gsql tigergraph queries for the Million Dollar Hackathon.",1,True)
+update_expertise(1,"GSQL (tigergraph)",2,"I have some expertise writing gsql tigergraph queries for the Million Dollar Hackathon.",1,True)
+delete_expertise(1,"engineering",1)
