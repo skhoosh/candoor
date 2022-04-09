@@ -41,15 +41,22 @@ def displayProfilePage(personid):
     profile_description = results[0]["result"][0]["attributes"]["profile_description"]
     open_to_connect = results[0]["result"][0]["attributes"]["open_to_connect"]
 
-    expertiseList = results[0]["result"][0]["attributes"]["@expertise"]
-    expertiseList = [expertise["attributes"] | {"speciality": expertise["to_id"]} for expertise in expertiseList]
-    expertiseList = sorted(expertiseList, key = lambda dict: dict["num"])
-    # each element in expertiseList has keys "num", "description", "proficiency_level", "willing_to_mentor", "speciality"
 
-    aspirationList = results[0]["result"][0]["attributes"]["@aspiration"]
-    aspirationList = [aspiration["attributes"] | {"speciality": aspiration["to_id"]} for aspiration in aspirationList]
-    aspirationList = sorted(aspirationList, key = lambda dict: dict["num"])
-    # each element in aspirationList has keys "num", "description", "interest_level", "looking_for_mentor", "speciality"
+    if "@expertise" in results[0]["result"][0]["attributes"]:
+        expertiseList = results[0]["result"][0]["attributes"]["@expertise"]
+        expertiseList = [expertise["attributes"] | {"speciality": expertise["to_id"]} for expertise in expertiseList]
+        expertiseList = sorted(expertiseList, key = lambda dict: dict["num"])
+        # each element in expertiseList has keys "num", "description", "proficiency_level", "willing_to_mentor", "speciality"
+    else:
+        expertiseList = []
+
+    if "@aspiration" in results[0]["result"][0]["attributes"]:
+        aspirationList = results[0]["result"][0]["attributes"]["@aspiration"]
+        aspirationList = [aspiration["attributes"] | {"speciality": aspiration["to_id"]} for aspiration in aspirationList]
+        aspirationList = sorted(aspirationList, key = lambda dict: dict["num"])
+        # each element in aspirationList has keys "num", "description", "interest_level", "looking_for_mentor", "speciality"
+    else:
+        aspirationList = []
 
     profile_page_dict = {"name": name,
                          "profile_picture": profile_picture,
@@ -61,7 +68,6 @@ def displayProfilePage(personid):
                          "aspirationList": aspirationList}
 
     return profile_page_dict
-
 
 def add_aspiration(personid, speciality, num, description, interest_level, looking_for_mentor):
     params = {"personid_para": personid,
