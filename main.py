@@ -18,11 +18,11 @@ def getgraphconnection(conn, hostName, userName, password, graphName):
     return conn
 
 
-clearAll = True
-createGlobalSchema = True
-createGraph = True
+clearAll = False
+createGlobalSchema = False
+createGraph = False
 connectToGraph = True
-loadGraph = True
+loadGraph = False
 dropQueries = True
 installQueries = True
 
@@ -198,19 +198,26 @@ if installQueries:
     CREATE QUERY getProfilePage_bypersonid(INT id_para) FOR GRAPH candoor {
         ListAccum<Edge<has_aspiration>> @aspiration;
         ListAccum<Edge<has_expertise>> @expertise;
+        SumAccum<INT> @@sp_count = 0;
         
         start = {person.*};
         result = SELECT s FROM start:s - (:e) - speciality:sp
             WHERE s.id == id_para
-            
+
             ACCUM
+                @@sp_count += 1,
                 IF e.type == "has_aspiration" THEN
                     s.@aspiration += e
                 ELSE IF e.type == "has_expertise" THEN
                     s.@expertise += e
                 END;
-        
-        PRINT result;
+
+        IF @@sp_count == 0 THEN
+            result2 = SELECT s FROM start:s WHERE s.id == id_para;
+            PRINT result2 AS result;
+        ELSE
+            PRINT result;
+        END;
     }
     INSTALL QUERY getProfilePage_bypersonid
     
