@@ -9,10 +9,11 @@
                 <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
                         height="200px" width="200px"></td>
                 <td class="about_me_td">
-                    <h2><b>{{ about_me_dict.name }}</b></h2>
-                    <p><i>{{ about_me_dict.headline }}</i> </p>
+                    <h2><b>{{ profile_dict.name }}</b></h2>
+                    <p>{{ profile_dict.pronouns }}</p>
+                    <p><i>{{ profile_dict.profile_header }}</i></p>
                     <p>
-                        {{ about_me_dict.about_me }}
+                        {{ profile_dict.profile_description }}
                     </p>
                 </td>
             </tr>
@@ -26,19 +27,20 @@
         <div class="ask_tell_body" action="/">
             <form action="POST">
                 <table class="ask_tell_table">
-                    {% for row in ask_me_dict %}
+                    {% for row in profile_dict.expertiseList %}
                     <tr class="ask_tell_tr">
-                        <td class="ask_tell_td"><input type="checkbox" id={{ row.skill }} value="{{ row.skill }}"></td>
-                        <td class="ask_tell_td"><b>{{ row.skill }}</b></td>
-                        <td class="ask_tell_td">{{ row.note }}</td>
-                        <td class="ask_tell_td">{{ row.level }}</td>
+                        <td class="ask_tell_td"><input type="checkbox" id={{ row.num }} value="{{ row.num }}"></td>
+                        <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
+                        <td class="ask_tell_td">{{ row.description }}</td>
+                        <td class="ask_tell_td">{{ expertise_mapping[row.proficiency_level] }}</td>
 
                     </tr>
                     {% endfor %}
 
+
                 </table>
                 <br>
-                <p><b>Send connection request to {{ about_me_dict.name }}</b></p>
+                <p><b>Send connection request to {{ profile_dict.name }}</b></p>
                 <button type="button" class="btn btn-dark">Send</button>
             </form>
         </div>
@@ -51,19 +53,19 @@
         <div class="ask_tell_body" action="/">
             <form action="POST">
                 <table class="ask_tell_table">
-                    {% for row in tell_me_dict %}
+                    {% for row in profile_dict.aspirationList %}
                     <tr class="ask_tell_tr">
-                        <td class="ask_tell_td"><input type="checkbox" id={{ row.skill }} value="{{ row.skill }}"></td>
-                        <td class="ask_tell_td"><b>{{ row.skill }}</b></td>
-                        <td class="ask_tell_td">{{ row.note }}</td>
-                        <td class="ask_tell_td">{{ row.level }}</td>
+                        <td class="ask_tell_td"><input type="checkbox" id={{ row.num }} value="{{ row.num }}"></td>
+                        <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
+                        <td class="ask_tell_td">{{ row.description }}</td>
+                        <td class="ask_tell_td">{{ row.interest_level }}</td>
 
                     </tr>
                     {% endfor %}
 
                 </table>
                 <br>
-                <p><b>Send connection request to {{ about_me_dict.name }}</b></p>
+                <p><b>Send connection request to {{ profile_dict.name }}</b></p>
                 <button type="button" class="btn btn-dark">Send</button>
             </form>
         </div>

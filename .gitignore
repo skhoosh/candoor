@@ -1,2 +1,6 @@
 /venv
 .env
+/testenv
+.cache/
+.pytest_cache/
+/__pycache__

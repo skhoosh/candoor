@@ -9,10 +9,11 @@
                 <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
                         height="200px" width="200px"></td>
                 <td class="about_me_td">
-                    <h2><b>{{ name }}</b></h2>
-                    <p><i>{{ about_me_dict.headline }}</i> </p>
+                    <h2><b>{{ my_profile_dict.name }}</b></h2>
+                    <p>{{ my_profile_dict.pronouns }}</p>
+                    <p><i>{{ my_profile_dict.profile_header }}</i></p>
                     <p>
-                        {{ about_me_dict.about_me }}
+                        {{ my_profile_dict.profile_description }}
                     </p>
                     <button id="btnEditProfile" class="btn btn-light">Edit</button>
                 </td>
@@ -26,18 +27,20 @@
         <div class="ask_tell_body" action="/">
             <form action="POST">
                 <table id="askTable" class="ask_tell_table">
-                    {% for row in ask_me_dict %}
-                    <tr class="ask_tell_tr">
-                        <td class="ask_tell_td"><input type="checkbox" id={{ row.skill }} value="{{ row.skill }}"></td>
-                        <td class="ask_tell_td"><b>{{ row.skill }}</b></td>
-                        <td class="ask_tell_td">{{ row.note }}</td>
-                        <td class="ask_tell_td">{{ row.level }}</td>
-
+                    {% for row in my_profile_dict.expertiseList %}
+                    <tr class="ask_tell_tr" id="expertise_{{ row.num }}">
+                        <td class="ask_tell_td"><input type="radio" name="expertiseRadio" value="{{ row.num }}"></td>
+                        <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
+                        <td class="ask_tell_td">{{ row.description }}</td>
+                        <td class="ask_tell_td">{{ expertise_mapping[row.proficiency_level] }}</td>
+                        <td class="ask_tell_td" style="display:none;">{{ row.proficiency_level }}</td>
+                        <td class="ask_tell_td"><p class="close" onClick="confirmDelete(event, this);">&times;</p></td>
                     </tr>
                     {% endfor %}
 
                 </table>
                 <br>
+                <button id="addAskMe" type="button" class="btn btn-dark"><b>+</b></button>
                 <button id="btnEditAskMe" type="button" class="btn btn-dark">Edit</button>
                 <button id="findPeopleAskMe" type="button" class="btn btn-dark">Find People Who Want to Hear
                     More</button>
@@ -52,18 +55,20 @@
         <div class="ask_tell_body" action="/">
             <form action="POST">
                 <table id="tellTable" class="ask_tell_table">
-                    {% for row in tell_me_dict %}
+                    {% for row in my_profile_dict.aspirationList %}
                     <tr class="ask_tell_tr">
-                        <td class="ask_tell_td"><input type="checkbox" id={{ row.skill }} value="{{ row.skill }}"></td>
-                        <td class="ask_tell_td"><b>{{ row.skill }}</b></td>
-                        <td class="ask_tell_td">{{ row.note }}</td>
-                        <td class="ask_tell_td">{{ row.level }}</td>
+                        <td class="ask_tell_td"><input type="radio" name="aspirationsRadio"
+                                id="aspiration_{{ row.num }}" value="{{ row.num }}"></td>
+                        <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
+                        <td class="ask_tell_td">{{ row.description }}</td>
+                        <td class="ask_tell_td">{{ row.interest_level }}</td>
 
                     </tr>
                     {% endfor %}
 
                 </table>
                 <br>
+                <button id="addTellMe" type="button" class="btn btn-dark"><b>+</b></button>
                 <button id="btnEditTellMe" type="button" class="btn btn-dark">Edit</button>
                 <button id="findPeopleTellMe" type="button" class="btn btn-dark">Find People Who Can Tell Me
                     More</button>
@@ -71,6 +76,7 @@
         </div>
     </div>
 
+    <!-- ********* EDIT PROFILE ********  -->
     <!-- Modal- edit ABOUT ME  -->
     <div id="editProfileAboutMe">
         <div class="editFormDiv">
@@ -78,18 +84,20 @@
             <form method="POST" action="/edit_about_me" id="myProfile">
                 <div class="mb-3">
                     <label for="displayName" class="form-label">Display Name</label>
-                    <input class="form-control" type="text" name="displayName" autofocus="">
+                    <input class="form-control" type="text" name="displayName" autofocus=""
+                        value="{{ my_profile_dict.name }}">
                 </div>
 
                 <div class="mb-3">
                     <label for="headline" class="form-label">Headline</label>
-                    <input class="form-control" type="text" name="headline" autofocus="">
+                    <input class="form-control" type="text" name="headline" autofocus=""
+                        value="{{ my_profile_dict.profile_header }}">
                 </div>
 
                 <div class="mb-3">
                     <label for="aboutme" class="form-label">About Me</label>
                     <textarea class="form-control" id="aboutme" name="aboutme" rows="5" cols="33"
-                        form="myProfile"></textarea>
+                        form="myProfile">{{ my_profile_dict.profile_description }}</textarea>
                 </div>
 
                 <button type="submit" class="btn btn-dark">Save</button>
@@ -102,27 +110,31 @@
     <div id="editAskMeAbout">
         <div class="editFormDiv">
             <p class="close" id="closeEditAskMeAbout">&times;</p> <br>
-            <form method="POST" action="/edit_ask_me_about" id="askMeAboutForm">
+            <form method="POST" action="" id="askMeAboutForm">
                 <div class="mb-3">
-                    <label for="expertise" class="form-label">What subject would you like to share about?</label>
-                    <input class="form-control" type="text" name="expertise" autofocus="">
+                    <label for="expertise" class="form-label">What would you like to share about?</label>
+                    <input id="editExpertiseSpeciality" class="form-control" type="text" name="expertise" autofocus="">
                 </div>
 
                 <div class="mb-3">
                     <label for="describeExpertise" class="form-label">Tell us more about your experience with
                         this:</label>
-                    <textarea class="form-control" id="describeExpertise" name="describeExpertise" rows="3"
+                    <textarea class="form-control" id="editDescribeExpertise" name="describeExpertise" rows="3"
                         form="askMeAboutForm"></textarea>
                 </div>
 
                 <div class="mb-3">
                     <label for="expertiseLevel" class="form-label">Choose your level of expertise:</label>
-                    <select class="form-select" name="expertiseLevel" id="expertiseLevel">
-                        <option value="expert">Ask me anything! I'm an expert</option>
-                        <option value="learning">Ask me about my learning journey</option>
-                        <option value="hobby">Ask me about my hobby</option>
+                    <select class="form-select" name="expertiseLevel" id="editExpertiseLevel">
+                        <option value="0">Hobbyist</option>
+                        <option value="1">Novice - Students or entry-level</option>
+                        <option value="2">Intermediate - Some experience applying theory to practice</option>
+                        <option value="3">Advanced - Professional and practical experience</option>
+                        <option value="4">Expert - Field experts</option>
                     </select>
                 </div>
+
+                <input type="hidden" name="expertiseNum" display="hidden" id="expertiseNum">
 
                 <button type="submit" class="btn btn-dark">Save</button>
 
@@ -136,12 +148,13 @@
             <p class="close" id="closeEditTellMeAbout">&times;</p> <br>
             <form method="POST" action="/edit_tell_me_about" id="tellMeAboutForm">
                 <div class="mb-3">
-                    <label for="aspiration" class="form-label">What subject would you like to learn about?</label>
+                    <label for="aspiration" class="form-label">What would you like to learn about?</label>
                     <input class="form-control" type="text" name="aspiration" autofocus="">
                 </div>
 
                 <div class="mb-3">
-                    <label for="describeAspiration" class="form-label">Tell us more about what you are looking for:</label>
+                    <label for="describeAspiration" class="form-label">Tell us more about what you are looking
+                        for:</label>
                     <textarea class="form-control" id="describeAspiration" name="describeAspiration" rows="3"
                         form="tellMeAboutForm"></textarea>
                 </div>
@@ -161,20 +174,39 @@
         </div>
     </div>
 
+    <!-- Modal- confirm delete ASK ME ABOUT  -->
+    <div id="deleteAskMeAbout">
+        <div class="editFormDiv">
+            <p class="close" id="closeDeleteAskMe">&times;</p> <br>
+            <p><b>Do you want to delete this speciality?</b></p>
+            <p id="deleteSpeciality"></p>
+            <form method="POST" action="/delete_ask_me" id="deleteAskMeForm">
+                <input id="deleteExpertiseSpeciality" class="form-control" type="hidden" name="expertise" autofocus="">
+                <input type="hidden" name="expertiseNum" display="hidden" id="deleteExpertiseNum">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
 
 
     <script>
         // ============== ENABLE or DISABLE FIND PEOPLE ===============
         if (document.getElementById("askTable").rows.length) {
             document.getElementById("findPeopleAskMe").disabled = false;
+            document.getElementById("btnEditAskMe").disabled= false;
         } else {
             document.getElementById("findPeopleAskMe").disabled = true;
+            document.getElementById("btnEditAskMe").disabled= true;
         }
 
         if (document.getElementById("tellTable").rows.length) {
             document.getElementById("findPeopleTellMe").disabled = false;
+            document.getElementById("btnEditTellMe").disabled= false;
         } else {
             document.getElementById("findPeopleTellMe").disabled = true;
+            document.getElementById("btnEditTellMe").disabled= true;
+
         }
 
         // ============== EDIT PROFILE =================
@@ -188,11 +220,40 @@
             document.getElementById("editProfileAboutMe").style.display = "none";
 
         }
+        // ============== DEFAULT CHECK FIRST BUTTON OF RADIO =================
+        if (document.getElementsByName("expertiseRadio").length) {
+            document.getElementsByName("expertiseRadio")[0].checked = true;
+        }
 
+        if (document.getElementsByName("aspirationsRadio").length) {
+            document.getElementsByName("aspirationsRadio")[0].checked = true;
+        }
+
+
+        // **************** ASK ME ABOUT ********************
         // ============== EDIT ASK ME ABOUT =================
         // Open Edit Profile
         document.getElementById("btnEditAskMe").onclick = function () {
+            // Set form action:
+            document.getElementById("askMeAboutForm").action = "/edit_ask_me_about"
+
+            // Get existing info: 
+            expertise_id = document.querySelector('input[name="expertiseRadio"]:checked').value
+            expertise_row = document.getElementById("expertise_" + expertise_id)
+            expertise_speciality = expertise_row.children[1].textContent
+            expertise_description = expertise_row.children[2].textContent
+            expertise_level_text = expertise_row.children[3].textContent
+            expertise_level_value = expertise_row.children[4].textContent
+
+            // Map existing info to form: 
+            document.getElementById("editExpertiseSpeciality").value = expertise_speciality
+            document.getElementById("editDescribeExpertise").value = expertise_description
+            document.getElementById("editExpertiseLevel").value = expertise_level_value
+            document.getElementById("expertiseNum").value = expertise_id
+
+            // Display Form
             document.getElementById("editAskMeAbout").style.display = "block";
+
         }
 
         // Close Edit Profile 
@@ -201,7 +262,47 @@
 
         }
 
+        // ============== ADD ASK ME ABOUT =================
+        // Open Edit Profile
+        document.getElementById("addAskMe").onclick = function () {
+            // Set form action:
+            document.getElementById("askMeAboutForm").action = "/add_ask_me_about"
+
+            // Set expertise num 
+            no_of_rows = document.getElementById("askTable").rows.length
+            document.getElementById("expertiseNum").value = no_of_rows+1
+
+            // Display Form
+            document.getElementById("editAskMeAbout").style.display = "block";
+        }
+        // Close Edit Profile 
+        document.getElementById("closeEditAskMeAbout").onclick = function () {
+            document.getElementById("editAskMeAbout").style.display = "none";
+        }
         
+        // ============== DELETE ASK ME ABOUT =================
+        function confirmDelete(e,el) {
+            // Get existing info:
+            expertise_row = el.parentNode.parentNode
+            expertise_speciality = expertise_row.children[1].textContent
+            expertise_num = expertise_row.children[0].firstChild.value
+
+            // Set form inputs: 
+            document.getElementById("deleteSpeciality").textContent = expertise_speciality
+            document.getElementById("deleteExpertiseSpeciality").value = expertise_speciality
+            document.getElementById("deleteExpertiseNum").value = expertise_num
+
+            // Show Confirm delete
+            document.getElementById("deleteAskMeAbout").style.display = "block";
+            // console.log(el.parentNode.parentNode);
+        }
+
+         // Close delete ask me about 
+         document.getElementById("closeDeleteAskMe").onclick = function () {
+            document.getElementById("deleteAskMeAbout").style.display = "none";
+        }
+
+
         // ============== EDIT TELL ME ABOUT =================
         // Open Edit Profile
         document.getElementById("btnEditTellMe").onclick = function () {

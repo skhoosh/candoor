@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import SocketIO, join_room
+from markupsafe import escape
 from models import User, db
 # import db
 
 # import TigerGraph
 import pyTigerGraph as tg
+# import TG functions
+# from tg_functions import createNewUser
 
 # create data for input into tg
 import uuid
@@ -38,21 +41,102 @@ conn = tg.TigerGraphConnection(
     host=hostName, username=userName, password=password)
 
 # Connect to TigerGraph Graph
-conn.graphname = "test_login"
+conn.graphname = "candoor"
 secret = conn.createSecret()
 authToken = conn.getToken(secret)
 authToken = authToken[0]
-conn = tg.TigerGraphConnection(host=hostName, graphname="test_login",
+conn = tg.TigerGraphConnection(host=hostName, graphname="candoor",
                                username=userName, password=password, apiToken=authToken)
+
+# -------- TG FUNCTIONS -----------
+def createNewUser(name, email, password, gender, country):
+    # check if user exists in system
+    checkUser = conn.runInstalledQuery(
+        "getperson_byemail", params={"email_para": email})
+
+    if len(checkUser[0]["result"]) == 1:
+        # user found
+        return False
+    else:
+        maxid = conn.runInstalledQuery("getmaxpersonid")[0]["result"]
+        conn.runInstalledQuery("createnewuser", params={"id_para": maxid + 1, "name_para": name,
+                               "email_para": email, "password_para": password, "gender_para": gender, "country_para": country})
+
+
+def displayProfilePage(personid):
+    # personid needs to exist in database
+    results = conn.runInstalledQuery("getProfilePage_bypersonid", params={"id_para": personid})
+
+    name = results[0]["result"][0]["attributes"]["name"]
+    profile_picture = results[0]["result"][0]["attributes"]["profile_picture"]
+    profile_header = results[0]["result"][0]["attributes"]["profile_header"]
+    pronouns = results[0]["result"][0]["attributes"]["pronouns"]
+    profile_description = results[0]["result"][0]["attributes"]["profile_description"]
+    open_to_connect = results[0]["result"][0]["attributes"]["open_to_connect"]
+
+
+    if "@expertise" in results[0]["result"][0]["attributes"]:
+        expertiseList = results[0]["result"][0]["attributes"]["@expertise"]
+        expertiseList = [expertise["attributes"] | {"speciality": expertise["to_id"]} for expertise in expertiseList]
+        expertiseList = sorted(expertiseList, key = lambda dict: dict["num"])
+        # each element in expertiseList has keys "num", "description", "proficiency_level", "willing_to_mentor", "speciality"
+    else:
+        expertiseList = []
+
+    if "@aspiration" in results[0]["result"][0]["attributes"]:
+        aspirationList = results[0]["result"][0]["attributes"]["@aspiration"]
+        aspirationList = [aspiration["attributes"] | {"speciality": aspiration["to_id"]} for aspiration in aspirationList]
+        aspirationList = sorted(aspirationList, key = lambda dict: dict["num"])
+        # each element in aspirationList has keys "num", "description", "interest_level", "looking_for_mentor", "speciality"
+    else:
+        aspirationList = []
+
+    profile_page_dict = {"name": name,
+                         "profile_picture": profile_picture,
+                         "profile_header": profile_header,
+                         "pronouns": pronouns,
+                         "profile_description": profile_description,
+                         "open_to_connect": open_to_connect,
+                         "expertiseList": expertiseList,
+                         "aspirationList": aspirationList}
+
+    return profile_page_dict
+
+
+def add_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor):
+    params = {"personid_para": personid,
+              "speciality_para": speciality,
+              "num_para": num,
+              "description_para": description,
+              "proficiency_level_para": proficiency_level,
+              "willing_to_mentor_para": willing_to_mentor}
+    results = conn.runInstalledQuery("add_expertise", params=params)
+
+
+def update_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor):
+    params = {"personid_vertex": personid,
+              "speciality_para": speciality,
+              "num_para": num,
+              "description_para": description,
+              "proficiency_level_para": proficiency_level,
+              "willing_to_mentor_para": willing_to_mentor}
+    results = conn.runInstalledQuery("update_expertise", params=params)
+
+
+def delete_expertise(personid, speciality, num):
+    params = {"personid_vertex": personid,
+              "num_para": num}
+    results = conn.runInstalledQuery("delete_expertise", params=params)
+    results = conn.runInstalledQuery("reorder_expertise", params=params)
+    results = conn.runInstalledQuery("clean_speciality", params={"specialityarea_vertex": speciality})
 
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
 # -------- AUTHENTICATION ---------
-
-
 @app.route('/login')
 def login():
     nav_items = [
@@ -84,16 +168,24 @@ def login_post():
 
 @app.route('/signup')
 def signup():
-    return render_template('signup.html')
+    nav_items = [
+        {"nav_label": "Login",
+         "nav_link": "/login"}
+    ]
+    return render_template('signup.html', nav_items=nav_items)
 
 
 @app.route('/signup', methods=['POST'])
 def signup_post():
 
-    user_id = f"{uuid.uuid4()}"
+    tg_max_id = conn.getVertexCount("person")
+    user_id = f"{tg_max_id + 1}"
     name = request.form.get('name')
     email = request.form.get('email')
-    password = request.form.get('password')
+    password = generate_password_hash(
+        request.form.get('password'), method='sha256')
+    gender = request.form.get('gender')
+    country = request.form.get('country')
     created_date = date.today().strftime("%Y-%m-%d")
 
     user_attributes = {
@@ -111,13 +203,14 @@ def signup_post():
 
     # create a new user with form data. Hash password.
     new_user = User(tg_id=user_id, email=email, name=name,
-                    password=generate_password_hash(password, method='sha256'))
+                    password=password)
     # add user to the sqlite database
     db.session.add(new_user)
     db.session.commit()
 
     # add user to tg database
-    conn.upsertVertex('person', user_id, user_attributes)
+    createNewUser(name, email, password, gender, country)
+    # conn.upsertVertex('person', user_id, user_attributes)
 
     # print(req)
     return redirect(url_for('login'))
@@ -150,46 +243,18 @@ def index():
 @app.route('/my-profile')
 @login_required
 def my_profile():
-    # Replace with code to call from TG
-    about_me_dict = {
-        "name": "abc",
-        "headline": "Artist | Scientist | Musician",
-        "about_me": "Some description about myself goes here. I like to paint, draw and illustrate with Python. My favourte YouTube videos are about fish. It's a special interest of mine."
+
+    # Call by User ID from TG 
+    user_id = current_user.tg_id
+    my_profile_dict = displayProfilePage(user_id)
+
+    expertise_mapping = {
+        0: "Hobbyist",
+        1: "Novice - Students or entry-level",
+        2: "Intermediate - Some experience applying theory to practice",
+        3: "Advanced - Professional and practical experience",
+        4: "Expert - Field experts"
     }
-
-    ask_me_dict = [
-        # {
-        #     "skill": "Watercolour",
-        #     "note": "I do watercolouring for my job. I like to paint landscape and fish",
-        #     "level": "Ask me anything! I'm an expert"
-        # },
-        #     {
-        #     "skill": "Python",
-        #     "note": "I have been coding for 1 year. I like python because it's cool. ",
-        #     "level": "Ask me about my learning journey"
-        # },
-        #     {
-        #     "skill": "Fish",
-        #     "note": "Fish keeping has been a passion and hobby of mine since I was a child. We used to go to Qian Hu fish farm a lot to look at the fish.",
-        #     "level": "Ask me about my hobby"
-        # }
-    ]
-
-    tell_me_dict = [{
-        "skill": "Chickens",
-        "note": "I would love to rear chickens one day. If you have an advice, let's chat",
-        "level": "I'm curious about the hobby"
-    },
-        {
-        "skill": "Skydiving",
-        "note": "I'm a thrill seeker! Would love to skydive. Anyone care to share about their experiences?  ",
-        "level": "I'm looking for an experience"
-    },
-        {
-        "skill": "Yoga",
-        "note": "I've been doing yoga for close to 8 years now. I practice around 3 times per week. I'm curious about taking this further and potentially becoming a teacher.",
-        "level": "Looking for a potential career switch"
-    }]
 
     nav_items = [
         {"nav_label": "About",
@@ -201,7 +266,7 @@ def my_profile():
     ]
 
     # , tg_id=current_user.tg_id
-    return render_template('my_profile.html', nav_items=nav_items, name=current_user.name, about_me_dict=about_me_dict, ask_me_dict=ask_me_dict, tell_me_dict=tell_me_dict)
+    return render_template('my_profile.html', nav_items=nav_items, my_profile_dict=my_profile_dict, expertise_mapping=expertise_mapping)
 
 # -------- EDIT MY PROFILE --------
 @app.route('/edit_about_me', methods=['POST'])
@@ -220,27 +285,57 @@ def edit_about_me():
     # Replace with code to write to TG
     with open("edit_about_me.txt", "a") as f:
         f.write(str(about_me)+"\n")
-    
+
     return redirect(url_for("my_profile"))
+
 
 @app.route('/edit_ask_me_about', methods=['POST'])
 @login_required
 def edit_ask_me():
-    expertise = request.form.get("expertise")
-    describeExpertise = request.form.get("describeExpertise")
-    expertiseLevel = request.form.get("expertiseLevel")
-
-    ask_me = {
-        "expertise": expertise,
-        "describeExpertise": describeExpertise,
-        "expertiseLevel": expertiseLevel
-    }
+    personid = current_user.tg_id
+    # personid = 2
+    speciality = request.form.get("expertise")
+    num = request.form.get("expertiseNum")
+    description = request.form.get("describeExpertise")
+    proficiency_level = request.form.get("expertiseLevel")
+    willing_to_mentor = True
 
     # Replace with code to write to TG
-    with open("edit_ask_me.txt", "a") as f:
-        f.write(str(ask_me)+"\n")
-    
+    update_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor)
+
     return redirect(url_for("my_profile"))
+
+@app.route('/add_ask_me_about', methods=['POST'])
+@login_required
+def add_ask_me():
+    personid = current_user.tg_id
+    # personid = 2
+    speciality = request.form.get("expertise")
+    num = request.form.get("expertiseNum")
+    description = request.form.get("describeExpertise")
+    proficiency_level = request.form.get("expertiseLevel")
+    willing_to_mentor = True
+
+    # Replace with code to write to TG
+    add_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor)
+
+    return redirect(url_for("my_profile"))
+
+
+@app.route('/delete_ask_me', methods=['POST'])
+@login_required
+def delete_ask_me():
+    personid = current_user.tg_id
+    # personid = 2
+    speciality = request.form.get("expertise")
+    num = request.form.get("expertiseNum")
+
+    # Replace with code to write to TG
+    delete_expertise(personid, speciality, num)
+
+    return redirect(url_for("my_profile"))
+
+
 
 @app.route('/edit_tell_me_about', methods=['POST'])
 @login_required
@@ -258,7 +353,7 @@ def edit_tell_me():
     # Replace with code to write to TG
     with open("edit_tell_me.txt", "a") as f:
         f.write(str(tell_me)+"\n")
-    
+
     return redirect(url_for("my_profile"))
 
 
@@ -326,49 +421,21 @@ def find_people():
     return render_template('find_people.html', people_list=people_list)
 
 
-# -------- VIEW OTHERS PROFILE ---------
-@app.route('/others')
+# -------- VIEW OTHER USERS PROFILE ---------
+@app.route('/profile/<int:user_id>')
 @login_required
-def others():
-    about_me_dict = {
-        "name": "Cat Bot",
-        "headline": "Am CAT",
-        "about_me": "Specialising in knocking things over. You may pet me. But not like that."
+def others(user_id):
+    user_id = f'{escape(user_id)}'
+    profile_dict = displayProfilePage(user_id)
+
+    expertise_mapping = {
+        0: "Hobbyist",
+        1: "Novice - Students or entry-level",
+        2: "Intermediate - Some experience applying theory to practice",
+        3: "Advanced - Professional and practical experience",
+        4: "Expert - Field experts"
     }
 
-    ask_me_dict = [
-        # {
-        #     "skill": "Watercolour",
-        #     "note": "I do watercolouring for my job. I like to paint landscape and fish",
-        #     "level": "Ask me anything! I'm an expert"
-        # },
-        #     {
-        #     "skill": "Python",
-        #     "note": "I have been coding for 1 year. I like python because it's cool. ",
-        #     "level": "Ask me about my learning journey"
-        # },
-        #     {
-        #     "skill": "Fish",
-        #     "note": "Fish keeping has been a passion and hobby of mine since I was a child. We used to go to Qian Hu fish farm a lot to look at the fish.",
-        #     "level": "Ask me about my hobby"
-        # }
-    ]
-
-    tell_me_dict = [{
-        "skill": "Chickens",
-        "note": "I would love to rear chickens one day. If you have an advice, let's chat",
-        "level": "I'm curious about the hobby"
-    },
-        {
-        "skill": "Skydiving",
-        "note": "I'm a thrill seeker! Would love to skydive. Anyone care to share about their experiences?  ",
-        "level": "I'm looking for an experience"
-    },
-        {
-        "skill": "Yoga",
-        "note": "I've been doing yoga for close to 8 years now. I practice around 3 times per week. I'm curious about taking this further and potentially becoming a teacher.",
-        "level": "Looking for a potential career switch"
-    }]
 
     nav_items = [
         {"nav_label": "About",
@@ -382,7 +449,7 @@ def others():
     ]
 
     # , tg_id=current_user.tg_id
-    return render_template('others_profile.html', nav_items=nav_items,  about_me_dict=about_me_dict, ask_me_dict=ask_me_dict, tell_me_dict=tell_me_dict)
+    return render_template('others_profile.html', nav_items=nav_items,  profile_dict=profile_dict, expertise_mapping=expertise_mapping)
 
 
 if __name__ == '__main__':

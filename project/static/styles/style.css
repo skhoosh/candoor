@@ -179,7 +179,7 @@ h3 {
   cursor: pointer;
 }
 
-#editProfileAboutMe, #editAskMeAbout, #editTellMeAbout {
+#editProfileAboutMe, #editAskMeAbout, #editTellMeAbout, #deleteAskMeAbout {
   display: none; 
   position: fixed;
   z-index: 100;
