@@ -18,11 +18,11 @@ def getgraphconnection(conn, hostName, userName, password, graphName):
     return conn
 
 
-clearAll = False
-createGlobalSchema = False
-createGraph = False
+clearAll = True
+createGlobalSchema = True
+createGraph = True
 connectToGraph = True
-loadGraph = False
+loadGraph = True
 dropQueries = True
 installQueries = True
 
@@ -38,7 +38,7 @@ if createGlobalSchema:
     CREATE VERTEX gender (PRIMARY_ID gender_identity STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX location (PRIMARY_ID country STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX speciality (PRIMARY_ID area STRING) WITH primary_id_as_attribute="true"
-    CREATE VERTEX message (PRIMARY_ID id INT, text STRING, time DATETIME)
+    CREATE VERTEX message (PRIMARY_ID id STRING, text STRING, time DATETIME)
     CREATE UNDIRECTED EDGE has_gender (From person, To gender)
     CREATE UNDIRECTED EDGE located_at (From person, To location)
     CREATE UNDIRECTED EDGE has_aspiration (From person, To speciality, num INT, description STRING, interest_level int, looking_for_mentor BOOL DEFAULT "true")
@@ -299,7 +299,7 @@ if installQueries:
     CREATE QUERY update_expertise(Vertex<person> personid_vertex, STRING speciality_para, INT num_para, STRING description_para, INT proficiency_level_para, BOOL willing_to_mentor_para) FOR GRAPH candoor {
         # update has_expertise edge and add/update speciality vertex
         
-        start = {personid_vertex};        
+        start = {personid_vertex};
         result = SELECT sp FROM start:s - (has_expertise:e) - speciality:sp
             WHERE e.num == num_para
             
@@ -338,11 +338,208 @@ if installQueries:
                 END;
     }
     INSTALL QUERY reorder_expertise
+    
+    CREATE QUERY find_connectiondegree(INT userid_para, INT personid_para) FOR GRAPH candoor RETURNS (INT) {
+        MinAccum<INT> @@connection = 4;
 
+        start = {person.*};
+        result1 = SELECT s FROM start:s - (friend:e) - person:p
+            WHERE
+                s.id == userid_para AND
+                p.id == personid_para
 
+            ACCUM
+                @@connection += 1;
+
+        result2 = SELECT s FROM start:s - (friend:e) - person:p - (friend:e2) - person:p2
+            WHERE
+                s.id == userid_para AND
+                p2.id == personid_para
+
+            ACCUM
+                @@connection += 2;
+                
+        result3 = SELECT s FROM start:s - (friend:e) - person:p - (friend:e2) - person:p2 - (friend:e3) - person:p3
+            WHERE
+                s.id == userid_para AND
+                p2.id != userid_para AND
+                p3.id == personid_para
+
+            ACCUM
+                @@connection += 3;
+
+        PRINT @@connection;
+        RETURN @@connection;     
+    }
+    INSTALL QUERY find_connectiondegree
+    
+    CREATE QUERY update_profile(Vertex<person> personid_vertex, STRING name_para, STRING profile_picture_para, STRING profile_header_para, STRING pronouns_para, STRING profile_description_para, BOOL open_to_connect_para) FOR GRAPH candoor {
+        start = {personid_vertex};
+        UPDATE s FROM start:s
+            SET
+                s.name = name_para,
+                s.profile_picture = profile_picture_para,
+                s.profile_header = profile_header_para,
+                s.pronouns = pronouns_para,
+                s.profile_description = profile_description_para,
+                s.open_to_connect = open_to_connect_para;
+
+    }
+    INSTALL QUERY update_profile
+
+    CREATE QUERY getSettingsPage_bypersonid(Vertex<person> personid_vertex) FOR GRAPH candoor {
+        MapAccum<STRING, STRING> @@settingsPage;
+        
+        start = {personid_vertex};
+        result = SELECT s FROM start:s - ((located_at|has_gender):e) - (location|gender):v
+
+            ACCUM
+                IF v.type == "location" THEN
+                    @@settingsPage += ("location" -> v.country)
+                ELSE IF v.type == "gender" THEN
+                    @@settingsPage += ("gender" -> v.gender_identity)
+                END
+                
+            POST-ACCUM
+                @@settingsPage += ("email" -> s.email);
+
+        PRINT @@settingsPage AS result;
+    }
+    INSTALL QUERY getSettingsPage_bypersonid
+    
+    CREATE QUERY update_userParticulars(Vertex<person> personid_vertex, STRING gender_para, STRING location_para) FOR GRAPH candoor {
+
+        start = {personid_vertex};
+        result = SELECT s FROM start:s - ((located_at|has_gender):e) - (location|gender):v
+
+            ACCUM
+                DELETE (e)
+            
+            POST-ACCUM (s)
+                INSERT INTO location (PRIMARY_ID) VALUES (location_para);
+                INSERT INTO located_at (FROM, TO) VALUES (personid_vertex, location_para location);
+                INSERT INTO gender (PRIMARY_ID) VALUES (gender_para);
+                INSERT INTO has_gender (FROM, TO) VALUES (personid_vertex, gender_para gender);
+
+    }
+    INSTALL QUERY update_userParticulars
+
+    CREATE QUERY update_password(Vertex<person> personid_vertex, STRING password_para) FOR GRAPH candoor {
+        start = {personid_vertex};
+        UPDATE s FROM start:s
+        SET
+            s.password = password_para;
+    }
+    INSTALL QUERY update_password
+
+    CREATE QUERY getBlockList(Vertex<person> personid_vertex) FOR GRAPH candoor {
+        start = {personid_vertex};
+        result = SELECT b FROM start:s - (block:e) -> person:b
+            ORDER BY
+                b.name;
+        PRINT result;
+    }
+    INSTALL QUERY getBlockList
+
+    CREATE QUERY add_block(INT personid_para, INT blockid_para) FOR GRAPH candoor {
+        INSERT INTO block (FROM, TO) VALUES (personid_para person, blockid_para person);
+    }
+    INSTALL QUERY add_block
+
+    CREATE QUERY delete_block(Vertex<person> personid_vertex, INT blockid_para) FOR GRAPH candoor {
+        start = {personid_vertex};
+        result = SELECT b FROM start:s - (block:e) -> person:b
+            WHERE b.id == blockid_para
+            
+            ACCUM
+                DELETE (e);
+    }
+    INSTALL QUERY delete_block
+
+    CREATE QUERY getFriendList(Vertex<person> personid_vertex) FOR GRAPH candoor {
+        start = {personid_vertex};
+        result = SELECT f FROM start:s - (friend:e) - person:f
+            ORDER BY
+                f.name;
+        PRINT result;
+    }
+    INSTALL QUERY getFriendList
+
+    CREATE QUERY delete_friend(Vertex<person> personid_vertex, INT friendid_para) FOR GRAPH candoor {
+        start = {personid_vertex};
+        result = SELECT f FROM start:s - (friend:e) - person:f
+            WHERE f.id == friendid_para
+            
+            ACCUM
+                DELETE (e);                
+    }
+    INSTALL QUERY delete_friend
+
+    CREATE QUERY show_friend_request(Vertex<person> personid_vertex) FOR GRAPH candoor {
+        start = {personid_vertex};
+        result = SELECT f FROM start:s - (reverse_friend_request:e) -> person:f
+            ORDER BY
+                f.name;
+        PRINT result;
+    }
+    INSTALL QUERY show_friend_request
+
+    CREATE QUERY send_friend_request(INT personid_para, INT friendid_para) FOR GRAPH candoor {
+        INSERT INTO friend_request (FROM, TO) VALUES (personid_para person, friendid_para person);
+    }
+    INSTALL QUERY send_friend_request
+
+    CREATE QUERY accept_friend_request(Vertex<person> personid_vertex, INT friendid_para) FOR GRAPH candoor {
+        INSERT INTO friend (FROM, TO) VALUES (personid_vertex, friendid_para person);
+        start = {personid_vertex};
+        result = SELECT f FROM start:s - (friend_request:e) - person:f
+            WHERE f.id == friendid_para
+            
+            ACCUM
+                DELETE (e);
+    }
+    INSTALL QUERY accept_friend_request
+    
+    CREATE QUERY show_messages(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor {
+        SetAccum<INT> @sender;
+        
+        start = {person.*};
+        result = SELECT m FROM start:s - (_>:e1) - message:m - (_>:e2) - person:p
+            WHERE 
+                s.id == personid_para AND
+                p.id == otherpersonid_para
+            
+            ACCUM
+                IF e1.type == "send_message" THEN
+                    m.@sender = s.id
+                ELSE
+                    m.@sender = otherpersonid_para
+                END
+            
+            ORDER BY m.time;  
+
+        PRINT result;
+    }
+    INSTALL QUERY show_messages
+    
+    CREATE QUERY get_chat_list(Vertex<person> personid_vertex) FOR GRAPH candoor {
+        start = {personid_vertex};
+        result = SELECT p FROM start:s - ((send_message>|reverse_receive_message>):e1) - message:m - ((receive_message>|reverse_send_message>):e2) - person:p
+            WHERE p.id != s.id
+            ORDER BY p.name;  
+
+        PRINT result;
+    }
+    INSTALL QUERY get_chat_list
+
+    CREATE QUERY send_a_message(INT personid_para, INT otherpersonid_para, STRING text_para, STRING time_para) FOR GRAPH candoor {
+        STRING uniqueMessageId = "p" + to_string(personid_para) + " p" + to_string(otherpersonid_para) + " " + time_para;
+        INSERT INTO message (PRIMARY_ID, text, time) VALUES (uniqueMessageId, text_para, to_datetime(time_para));
+        INSERT INTO send_message (FROM, TO) VALUES (personid_para person, uniqueMessageId message);
+        INSERT INTO receive_message (FROM, TO) VALUES (uniqueMessageId message, otherpersonid_para person);
+    }
+    INSTALL QUERY send_a_message
 '''
-
-
 
 
     results = conn.gsql(queries_gsql)
@@ -355,8 +552,3 @@ if installQueries:
 # results = conn.gsql("USE GRAPH candoor SHOW JOB *")
 # results = conn.gsql("DROP JOB ALL")
 # print(results)
-
-
-'''
-
-    '''
