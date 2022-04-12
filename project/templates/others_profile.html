@@ -4,9 +4,9 @@
 <div class="container-fluid">
 
     <div class="about_me">
-        <table class="about_me_table">
+        <table id="askTable" class="about_me_table">
             <tr>
-                <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
+                <td class="about_me_td"><img id="profile_pic" src="" alt=""
                         height="200px" width="200px"></td>
                 <td class="about_me_td">
                     <h2><b>{{ profile_dict.name }}</b></h2>
@@ -26,7 +26,7 @@
         </div>
         <div class="ask_tell_body" action="/">
             <form action="POST">
-                <table class="ask_tell_table">
+                <table id="tellTable" class="ask_tell_table">
                     {% for row in profile_dict.expertiseList %}
                     <tr class="ask_tell_tr">
                         <td class="ask_tell_td"><input type="checkbox" id={{ row.num }} value="{{ row.num }}"></td>
@@ -70,5 +70,17 @@
             </form>
         </div>
     </div>
+<script>
+    // SET PROFILE PIC TO DEFAULT IF NOT EXISTS 
+    var profile_pic = "{{ profile_dict.profile_picture }}"
+    if (profile_pic) {
+        document.getElementById("profile_pic").src = "/static/styles/img/{{ profile_dict.profile_picture }}"
+
+    } else {
+        document.getElementById("profile_pic").src = "/static/styles/img/fluid_bg.jpg"
+    }
+ 
+</script>
 </div>
+
 {% endblock %}

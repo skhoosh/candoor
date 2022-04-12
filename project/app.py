@@ -130,6 +130,33 @@ def delete_expertise(personid, speciality, num):
     results = conn.runInstalledQuery("reorder_expertise", params=params)
     results = conn.runInstalledQuery("clean_speciality", params={"specialityarea_vertex": speciality})
 
+def add_aspiration(personid, speciality, num, description, interest_level, looking_for_mentor):
+    params = {"personid_para": personid,
+              "speciality_para": speciality,
+              "num_para": num,
+              "description_para": description,
+              "interest_level_para": interest_level,
+              "looking_for_mentor_para": looking_for_mentor}
+    results = conn.runInstalledQuery("add_aspiration", params=params)
+
+
+def update_aspiration(personid, speciality, num, description, interest_level, looking_for_mentor):
+    params = {"personid_vertex": personid,
+              "speciality_para": speciality,
+              "num_para": num,
+              "description_para": description,
+              "interest_level_para": interest_level,
+              "looking_for_mentor_para": looking_for_mentor}
+    results = conn.runInstalledQuery("update_aspiration", params=params)
+
+
+def delete_aspiration(personid, speciality, num):
+    params = {"personid_vertex": personid,
+              "num_para": num}
+    results = conn.runInstalledQuery("delete_aspiration", params=params)
+    results = conn.runInstalledQuery("reorder_aspiration", params=params)
+    results = conn.runInstalledQuery("clean_speciality", params={"specialityarea_vertex": speciality})
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -256,6 +283,13 @@ def my_profile():
         4: "Expert - Field experts"
     }
 
+    aspiration_mapping = {
+        0: "Looking for a new hobby",
+        1: "Student or entry-level skill building",
+        2: "Looking for a potential career switch",
+        3: "How can I build my career and be an expert at this?"
+    }
+
     nav_items = [
         {"nav_label": "About",
          "nav_link": "#"},
@@ -266,7 +300,7 @@ def my_profile():
     ]
 
     # , tg_id=current_user.tg_id
-    return render_template('my_profile.html', nav_items=nav_items, my_profile_dict=my_profile_dict, expertise_mapping=expertise_mapping)
+    return render_template('my_profile.html', nav_items=nav_items, my_profile_dict=my_profile_dict, expertise_mapping=expertise_mapping, aspiration_mapping=aspiration_mapping)
 
 # -------- EDIT MY PROFILE --------
 @app.route('/edit_about_me', methods=['POST'])
@@ -289,22 +323,7 @@ def edit_about_me():
     return redirect(url_for("my_profile"))
 
 
-@app.route('/edit_ask_me_about', methods=['POST'])
-@login_required
-def edit_ask_me():
-    personid = current_user.tg_id
-    # personid = 2
-    speciality = request.form.get("expertise")
-    num = request.form.get("expertiseNum")
-    description = request.form.get("describeExpertise")
-    proficiency_level = request.form.get("expertiseLevel")
-    willing_to_mentor = True
-
-    # Replace with code to write to TG
-    update_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor)
-
-    return redirect(url_for("my_profile"))
-
+# -------- EDIT ASK ME --------
 @app.route('/add_ask_me_about', methods=['POST'])
 @login_required
 def add_ask_me():
@@ -318,6 +337,23 @@ def add_ask_me():
 
     # Replace with code to write to TG
     add_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor)
+
+    return redirect(url_for("my_profile"))
+
+
+@app.route('/edit_ask_me_about', methods=['POST'])
+@login_required
+def edit_ask_me():
+    personid = current_user.tg_id
+    # personid = 2
+    speciality = request.form.get("expertise")
+    num = request.form.get("expertiseNum")
+    description = request.form.get("describeExpertise")
+    proficiency_level = request.form.get("expertiseLevel")
+    willing_to_mentor = True
+
+    # Replace with code to write to TG
+    update_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor)
 
     return redirect(url_for("my_profile"))
 
@@ -336,26 +372,52 @@ def delete_ask_me():
     return redirect(url_for("my_profile"))
 
 
+# -------- EDIT TELL ME --------
+@app.route('/add_tell_me_about', methods=['POST'])
+@login_required
+def add_tell_me():
+    personid = current_user.tg_id
+    # personid = 2
+    speciality = request.form.get("aspiration")
+    num = request.form.get("aspirationNum")
+    description = request.form.get("describeAspiration")
+    interest_level = request.form.get("aspirationLevel")
+    looking_for_mentor = True
+
+    # Replace with code to write to TG
+    add_aspiration(f"{personid}", f"{speciality}", num, f"{description}", f"{interest_level}", f"{looking_for_mentor}")
+
+    return redirect(url_for("my_profile"))
 
 @app.route('/edit_tell_me_about', methods=['POST'])
 @login_required
 def edit_tell_me():
-    aspiration = request.form.get("aspiration")
-    describeAspiration = request.form.get("describeAspiration")
-    aspirationLevel = request.form.get("aspirationLevel")
-
-    tell_me = {
-        "aspiration": aspiration,
-        "describeAspiration": describeAspiration,
-        "aspirationLevel": aspirationLevel
-    }
+    personid = current_user.tg_id
+    # personid = 2
+    speciality = request.form.get("aspiration")
+    num = request.form.get("aspirationNum")
+    description = request.form.get("describeAspiration")
+    interest_level = request.form.get("aspirationLevel")
+    looking_for_mentor = True
 
     # Replace with code to write to TG
-    with open("edit_tell_me.txt", "a") as f:
-        f.write(str(tell_me)+"\n")
+    update_aspiration(personid, speciality, num, description, interest_level, looking_for_mentor)
 
     return redirect(url_for("my_profile"))
 
+
+@app.route('/delete_tell_me', methods=['POST'])
+@login_required
+def delete_tell_me():
+    personid = current_user.tg_id
+    # personid = 2
+    speciality = request.form.get("aspiration")
+    num = request.form.get("aspirationNum")
+
+    # Replace with code to write to TG
+    delete_aspiration(personid, speciality, num)
+
+    return redirect(url_for("my_profile"))
 
 # -------- CHAT ---------
 @app.route('/chat_home')

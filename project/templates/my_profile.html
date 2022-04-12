@@ -34,7 +34,7 @@
                         <td class="ask_tell_td">{{ row.description }}</td>
                         <td class="ask_tell_td">{{ expertise_mapping[row.proficiency_level] }}</td>
                         <td class="ask_tell_td" style="display:none;">{{ row.proficiency_level }}</td>
-                        <td class="ask_tell_td"><p class="close" onClick="confirmDelete(event, this);">&times;</p></td>
+                        <td class="ask_tell_td"><p class="close" onClick="confirmDeleteExpertise(event, this);">&times;</p></td>
                     </tr>
                     {% endfor %}
 
@@ -56,13 +56,13 @@
             <form action="POST">
                 <table id="tellTable" class="ask_tell_table">
                     {% for row in my_profile_dict.aspirationList %}
-                    <tr class="ask_tell_tr">
-                        <td class="ask_tell_td"><input type="radio" name="aspirationsRadio"
-                                id="aspiration_{{ row.num }}" value="{{ row.num }}"></td>
+                    <tr class="ask_tell_tr" id="aspiration_{{ row.num }}">
+                        <td class="ask_tell_td"><input type="radio" name="aspirationsRadio" value="{{ row.num }}"></td>
                         <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
                         <td class="ask_tell_td">{{ row.description }}</td>
-                        <td class="ask_tell_td">{{ row.interest_level }}</td>
-
+                        <td class="ask_tell_td">{{ aspiration_mapping[row.interest_level] }}</td>
+                        <td class="ask_tell_td" style="display:none;">{{ row.interest_level }}</td>
+                        <td class="ask_tell_td"><p class="close" onClick="confirmDeleteAspiration(event, this);">&times;</p></td>
                     </tr>
                     {% endfor %}
 
@@ -149,24 +149,26 @@
             <form method="POST" action="/edit_tell_me_about" id="tellMeAboutForm">
                 <div class="mb-3">
                     <label for="aspiration" class="form-label">What would you like to learn about?</label>
-                    <input class="form-control" type="text" name="aspiration" autofocus="">
+                    <input id="editAspirationSpeciality" class="form-control" type="text" name="aspiration" autofocus="">
                 </div>
 
                 <div class="mb-3">
                     <label for="describeAspiration" class="form-label">Tell us more about what you are looking
                         for:</label>
-                    <textarea class="form-control" id="describeAspiration" name="describeAspiration" rows="3"
+                    <textarea class="form-control" id="editDescribeAspiration" name="describeAspiration" rows="3"
                         form="tellMeAboutForm"></textarea>
                 </div>
 
                 <div class="mb-3">
                     <label for="aspirationLevel" class="form-label">Choose your level of aspiration:</label>
-                    <select class="form-select" name="aspirationLevel" id="aspirationLevel">
-                        <option value="expert">I'm curious about the hobby</option>
-                        <option value="learning">I'm trying to learn about this</option>
-                        <option value="hobby">Looking for a potential career switch</option>
+                    <select class="form-select" name="aspirationLevel" id="editAspirationLevel">
+                        <option value="0">I'm curious about the hobby</option>
+                        <option value="1">I'm trying to learn about this</option>
+                        <option value="2">Looking for a potential career switch</option>
                     </select>
                 </div>
+
+                <input type="hidden" name="aspirationNum" display="hidden" id="aspirationNum">
 
                 <button type="submit" class="btn btn-dark">Save</button>
 
@@ -179,10 +181,25 @@
         <div class="editFormDiv">
             <p class="close" id="closeDeleteAskMe">&times;</p> <br>
             <p><b>Do you want to delete this speciality?</b></p>
-            <p id="deleteSpeciality"></p>
+            <p id="deleteExpertise"></p>
             <form method="POST" action="/delete_ask_me" id="deleteAskMeForm">
                 <input id="deleteExpertiseSpeciality" class="form-control" type="hidden" name="expertise" autofocus="">
                 <input type="hidden" name="expertiseNum" display="hidden" id="deleteExpertiseNum">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    
+    <!-- Modal- confirm delete ASK ME ABOUT  -->
+    <div id="deleteTellMeAbout">
+        <div class="editFormDiv">
+            <p class="close" id="closeDeleteTellMe">&times;</p> <br>
+            <p><b>Do you want to delete this speciality?</b></p>
+            <p id="deleteAspiration"></p>
+            <form method="POST" action="/delete_tell_me" id="deleteTellMeForm">
+                <input id="deleteAspirationSpeciality" class="form-control" type="hidden" name="aspiration" autofocus="">
+                <input type="hidden" name="aspirationNum" display="hidden" id="deleteAspirationNum">
                 <button type="submit" class="btn btn-danger">Delete</button>
             </form>
         </div>
@@ -232,18 +249,18 @@
 
         // **************** ASK ME ABOUT ********************
         // ============== EDIT ASK ME ABOUT =================
-        // Open Edit Profile
+        // Open Edit
         document.getElementById("btnEditAskMe").onclick = function () {
             // Set form action:
             document.getElementById("askMeAboutForm").action = "/edit_ask_me_about"
 
             // Get existing info: 
-            expertise_id = document.querySelector('input[name="expertiseRadio"]:checked').value
-            expertise_row = document.getElementById("expertise_" + expertise_id)
-            expertise_speciality = expertise_row.children[1].textContent
-            expertise_description = expertise_row.children[2].textContent
-            expertise_level_text = expertise_row.children[3].textContent
-            expertise_level_value = expertise_row.children[4].textContent
+            var expertise_id = document.querySelector('input[name="expertiseRadio"]:checked').value
+            var expertise_row = document.getElementById("expertise_" + expertise_id)
+            var expertise_speciality = expertise_row.children[1].textContent
+            var expertise_description = expertise_row.children[2].textContent
+            var expertise_level_text = expertise_row.children[3].textContent
+            var expertise_level_value = expertise_row.children[4].textContent
 
             // Map existing info to form: 
             document.getElementById("editExpertiseSpeciality").value = expertise_speciality
@@ -256,39 +273,39 @@
 
         }
 
-        // Close Edit Profile 
+        // Close Edit 
         document.getElementById("closeEditAskMeAbout").onclick = function () {
             document.getElementById("editAskMeAbout").style.display = "none";
 
         }
 
         // ============== ADD ASK ME ABOUT =================
-        // Open Edit Profile
+        // Open Edit 
         document.getElementById("addAskMe").onclick = function () {
             // Set form action:
             document.getElementById("askMeAboutForm").action = "/add_ask_me_about"
 
             // Set expertise num 
-            no_of_rows = document.getElementById("askTable").rows.length
+            var no_of_rows = document.getElementById("askTable").rows.length
             document.getElementById("expertiseNum").value = no_of_rows+1
 
             // Display Form
             document.getElementById("editAskMeAbout").style.display = "block";
         }
-        // Close Edit Profile 
+        // Close Edit 
         document.getElementById("closeEditAskMeAbout").onclick = function () {
             document.getElementById("editAskMeAbout").style.display = "none";
         }
         
         // ============== DELETE ASK ME ABOUT =================
-        function confirmDelete(e,el) {
+        function confirmDeleteExpertise(e,el) {
             // Get existing info:
-            expertise_row = el.parentNode.parentNode
-            expertise_speciality = expertise_row.children[1].textContent
-            expertise_num = expertise_row.children[0].firstChild.value
+            var expertise_row = el.parentNode.parentNode
+            var expertise_speciality = expertise_row.children[1].textContent
+            var expertise_num = expertise_row.children[0].firstChild.value
 
             // Set form inputs: 
-            document.getElementById("deleteSpeciality").textContent = expertise_speciality
+            document.getElementById("deleteExpertise").textContent = expertise_speciality
             document.getElementById("deleteExpertiseSpeciality").value = expertise_speciality
             document.getElementById("deleteExpertiseNum").value = expertise_num
 
@@ -303,17 +320,78 @@
         }
 
 
+         // **************** TELL ME ABOUT ********************
         // ============== EDIT TELL ME ABOUT =================
-        // Open Edit Profile
+        // Open Edit 
         document.getElementById("btnEditTellMe").onclick = function () {
+            // Set form action:
+            document.getElementById("tellMeAboutForm").action = "/edit_tell_me_about"
+
+            // Get existing info: 
+            var aspiration_id = document.querySelector('input[name="aspirationsRadio"]:checked').value
+            var aspiration_row = document.getElementById("aspiration_" + aspiration_id)
+            var aspiration_speciality = aspiration_row.children[1].textContent
+            var aspiration_description = aspiration_row.children[2].textContent
+            var aspiration_level_text = aspiration_row.children[3].textContent
+            var aspiration_level_value = aspiration_row.children[4].textContent
+
+            // Map existing info to form: 
+            document.getElementById("editAspirationSpeciality").value = aspiration_speciality
+            document.getElementById("editDescribeAspiration").value = aspiration_description
+            document.getElementById("editAspirationLevel").value = aspiration_level_value
+            document.getElementById("aspirationNum").value = aspiration_id
+
+            // Display Form
             document.getElementById("editTellMeAbout").style.display = "block";
+
         }
 
-        // Close Edit Profile 
+        // Close Edit
         document.getElementById("closeEditTellMeAbout").onclick = function () {
             document.getElementById("editTellMeAbout").style.display = "none";
 
         }
+
+        // ============== ADD TELL ME ABOUT =================
+        // Open Edit 
+        document.getElementById("addTellMe").onclick = function () {
+            // Set form action:
+            document.getElementById("tellMeAboutForm").action = "/add_tell_me_about"
+
+            // Set aspiration num 
+            var no_of_rows = document.getElementById("tellTable").rows.length
+            document.getElementById("aspirationNum").value = no_of_rows+1
+
+            // Display Form
+            document.getElementById("editTellMeAbout").style.display = "block";
+        }
+        // Close Edit 
+        document.getElementById("closeEditTellMeAbout").onclick = function () {
+            document.getElementById("editTellMeAbout").style.display = "none";
+        }
+        
+        // ============== DELETE TELL ME ABOUT =================
+        function confirmDeleteAspiration(e,el) {
+            // Get existing info:
+            var aspiration_row = el.parentNode.parentNode
+            var aspiration_speciality = aspiration_row.children[1].textContent
+            var aspiration_num = aspiration_row.children[0].firstChild.value
+
+            // Set form inputs: 
+            document.getElementById("deleteAspiration").textContent = aspiration_speciality
+            document.getElementById("deleteAspirationSpeciality").value = aspiration_speciality
+            document.getElementById("deleteAspirationNum").value = aspiration_num
+
+            // Show Confirm delete
+            document.getElementById("deleteTellMeAbout").style.display = "block";
+            // console.log(el.parentNode.parentNode);
+        }
+
+         // Close delete ask me about 
+         document.getElementById("closeDeleteTellMe").onclick = function () {
+            document.getElementById("deleteTellMeAbout").style.display = "none";
+        }
+
 
 
     </script>

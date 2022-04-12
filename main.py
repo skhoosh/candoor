@@ -1,6 +1,6 @@
 import pyTigerGraph as tg
 
-hostName = "https://candoor.i.tgcloud.io"
+hostName = "https://candoor01.i.tgcloud.io"
 userName = "tigergraph"
 password = "password"
 conn = tg.TigerGraphConnection(host = hostName, username = userName, password = password)

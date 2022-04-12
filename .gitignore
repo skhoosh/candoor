@@ -3,4 +3,6 @@
 /testenv
 .cache/
 .pytest_cache/
-/__pycache__
+__pycache__/
+temp.html
+project/__pycache__/app.cpython-38.pyc

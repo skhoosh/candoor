@@ -125,6 +125,9 @@ h3 {
   max-width: 1000px;
 }
 
+.ask_tell_table {
+  width: 100%;
+}
 
 .ask_tell_header {
   border-radius: 10px 10px 0 0;
@@ -145,6 +148,7 @@ h3 {
 .ask_tell_td {
   padding: 10px 20px;
 }
+
 
 /* ========= Edit profile forms ======== */
 .btn-light {
@@ -179,7 +183,7 @@ h3 {
   cursor: pointer;
 }
 
-#editProfileAboutMe, #editAskMeAbout, #editTellMeAbout, #deleteAskMeAbout {
+#editProfileAboutMe, #editAskMeAbout, #editTellMeAbout, #deleteAskMeAbout, #deleteTellMeAbout {
   display: none; 
   position: fixed;
   z-index: 100;
@@ -250,6 +254,7 @@ h3 {
   /* border-radius: 5px; */
   padding: 5px;
   /* border-bottom: 1px solid #dbdbdb; */
+  overflow: auto;
 }
 
 #messageArea {
