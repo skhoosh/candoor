@@ -1,6 +1,9 @@
 import pyTigerGraph as tg
+import time
 
-hostName = "https://candoor01.i.tgcloud.io"
+startTime = time.time()
+
+hostName = "https://candoor.i.tgcloud.io"
 userName = "tigergraph"
 password = "password"
 conn = tg.TigerGraphConnection(host = hostName, username = userName, password = password)
@@ -156,13 +159,6 @@ if installQueries:
     }
     INSTALL QUERY getperson_byemail
 
-    CREATE QUERY getperson_byid(INT id_para) FOR GRAPH candoor {
-        start = {person.*};
-        result = SELECT s FROM start:s WHERE s.id == id_para;
-        PRINT result;
-    }
-    INSTALL QUERY getperson_byid
-
     CREATE QUERY getmaxpersonid() FOR GRAPH candoor {
         MaxAccum<INT> @@maxpersonid;
         start = {person.*};
@@ -220,6 +216,20 @@ if installQueries:
         END;
     }
     INSTALL QUERY getProfilePage_bypersonid
+    
+    CREATE QUERY update_profile(Vertex<person> personid_vertex, STRING name_para, STRING profile_picture_para, STRING profile_header_para, STRING pronouns_para, STRING profile_description_para, BOOL open_to_connect_para) FOR GRAPH candoor {
+        start = {personid_vertex};
+        UPDATE s FROM start:s
+            SET
+                s.name = name_para,
+                s.profile_picture = profile_picture_para,
+                s.profile_header = profile_header_para,
+                s.pronouns = pronouns_para,
+                s.profile_description = profile_description_para,
+                s.open_to_connect = open_to_connect_para;
+
+    }
+    INSTALL QUERY update_profile
     
     CREATE QUERY add_aspiration(INT personid_para, STRING speciality_para, INT num_para, STRING description_para, INT interest_level_para, BOOL looking_for_mentor_para) FOR GRAPH candoor {
         # add a new has_aspiration edge and add/update speciality vertex
@@ -338,55 +348,7 @@ if installQueries:
                 END;
     }
     INSTALL QUERY reorder_expertise
-    
-    CREATE QUERY find_connectiondegree(INT userid_para, INT personid_para) FOR GRAPH candoor RETURNS (INT) {
-        MinAccum<INT> @@connection = 4;
-
-        start = {person.*};
-        result1 = SELECT s FROM start:s - (friend:e) - person:p
-            WHERE
-                s.id == userid_para AND
-                p.id == personid_para
-
-            ACCUM
-                @@connection += 1;
-
-        result2 = SELECT s FROM start:s - (friend:e) - person:p - (friend:e2) - person:p2
-            WHERE
-                s.id == userid_para AND
-                p2.id == personid_para
-
-            ACCUM
-                @@connection += 2;
-                
-        result3 = SELECT s FROM start:s - (friend:e) - person:p - (friend:e2) - person:p2 - (friend:e3) - person:p3
-            WHERE
-                s.id == userid_para AND
-                p2.id != userid_para AND
-                p3.id == personid_para
-
-            ACCUM
-                @@connection += 3;
-
-        PRINT @@connection;
-        RETURN @@connection;     
-    }
-    INSTALL QUERY find_connectiondegree
-    
-    CREATE QUERY update_profile(Vertex<person> personid_vertex, STRING name_para, STRING profile_picture_para, STRING profile_header_para, STRING pronouns_para, STRING profile_description_para, BOOL open_to_connect_para) FOR GRAPH candoor {
-        start = {personid_vertex};
-        UPDATE s FROM start:s
-            SET
-                s.name = name_para,
-                s.profile_picture = profile_picture_para,
-                s.profile_header = profile_header_para,
-                s.pronouns = pronouns_para,
-                s.profile_description = profile_description_para,
-                s.open_to_connect = open_to_connect_para;
-
-    }
-    INSTALL QUERY update_profile
-
+        
     CREATE QUERY getSettingsPage_bypersonid(Vertex<person> personid_vertex) FOR GRAPH candoor {
         MapAccum<STRING, STRING> @@settingsPage;
         
@@ -539,12 +501,217 @@ if installQueries:
         INSERT INTO receive_message (FROM, TO) VALUES (uniqueMessageId message, otherpersonid_para person);
     }
     INSTALL QUERY send_a_message
+    
+    CREATE QUERY find_connectiondegree(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor RETURNS (INT) {
+        MinAccum<INT> @@connection = 4;
+
+        start = {person.*};
+        result1 = SELECT s FROM start:s - (friend:e) - person:p
+            WHERE
+                s.id == personid_para AND
+                p.id == otherpersonid_para
+
+            ACCUM
+                @@connection += 1;
+
+        result2 = SELECT s FROM start:s - (friend:e) - person:p - (friend:e2) - person:p2
+            WHERE
+                s.id == personid_para AND
+                p2.id == otherpersonid_para
+
+            ACCUM
+                @@connection += 2;
+                
+        result3 = SELECT s FROM start:s - (friend:e) - person:p - (friend:e2) - person:p2 - (friend:e3) - person:p3
+            WHERE
+                s.id == personid_para AND
+                p2.id != personid_para AND
+                p3.id == otherpersonid_para
+
+            ACCUM
+                @@connection += 3;
+
+        PRINT @@connection;
+        RETURN @@connection;     
+    }
+    INSTALL QUERY find_connectiondegree
+
+    CREATE QUERY find_twoway_blockdegreeremovedscore(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor RETURNS (INT) {
+        # does not check 1st degree two way block as 1st degree blocks should/will be removed completely from interaction
+        # a block of 0 is the best. The higher the block score the worse the person will be ranked
+        # can consider scoring reverse_block differently from block in the future to not penalise reverse_block as much
+
+        MaxAccum<INT> @@twowayblockdegree = 0;
+
+        start = {person.*};
+        result1 = SELECT s FROM start:s - (friend:e) - person:p - ((block>|reverse_block>):b) - person:p2
+            WHERE
+                s.id == personid_para AND
+                p2.id == otherpersonid_para
+
+            ACCUM
+                @@twowayblockdegree += 5;
+
+        result2 = SELECT s FROM start:s - (friend:e) - person:p - (friend:e) - person:p2 - ((block>|reverse_block>):b) - person:p3
+            WHERE
+                s.id == personid_para AND
+                p2.id != personid_para AND
+                p3.id == otherpersonid_para
+
+            ACCUM
+                @@twowayblockdegree += 2;
+
+        PRINT @@twowayblockdegree;
+        RETURN @@twowayblockdegree;     
+    }
+    INSTALL QUERY find_twoway_blockdegreeremovedscore
+
+    CREATE QUERY match_country(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor RETURNS (INT) {
+        # returns 1 for match, 0 for no match
+        STRING user_country;
+        INT match;
+
+        start = {person.*};
+        result1 = SELECT l FROM start:s - (located_at:e) - location:l
+            WHERE s.id == personid_para
+            
+            POST-ACCUM
+                user_country = l.country;
+
+        result1 = SELECT l FROM start:s - (located_at:e) - location:l
+            WHERE s.id == otherpersonid_para
+            
+            POST-ACCUM
+                IF l.country == user_country THEN
+                    match = 1
+                ELSE
+                    match = 0
+                END;
+
+        PRINT match;
+        RETURN match;     
+    }
+    INSTALL QUERY match_country
+
+    CREATE QUERY match_gender(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor RETURNS (INT) {
+        # returns 1 for match, 0 for no match
+        STRING user_gender;
+        INT match;
+
+        start = {person.*};
+        result1 = SELECT g FROM start:s - (has_gender:e) - gender:g
+            WHERE s.id == personid_para
+            
+            POST-ACCUM
+                user_gender = g.gender_identity;
+
+        result1 = SELECT g FROM start:s - (has_gender:e) - gender:g
+            WHERE s.id == otherpersonid_para
+            
+            POST-ACCUM
+                IF g.gender_identity == user_gender THEN
+                    match = 1
+                ELSE
+                    match = 0
+                END;
+
+        PRINT match;
+        RETURN match;     
+    }
+    INSTALL QUERY match_gender
+
+    CREATE QUERY find_mentors(INT personid_para, STRING speciality_para, INT interest_level_para) FOR GRAPH candoor {
+        SetAccum<INT> @@blockids;
+        SetAccum<Edge<has_expertise>> @has_expertise;
+        SetAccum<Vertex<speciality>> @speciality;
+        SumAccum<INT> @score;
+
+        start0 = {person.*};
+        userVertexSet = SELECT s FROM start0:s WHERE s.id == personid_para;  
+
+        start = {speciality.*};
+        mentorResult = SELECT p FROM start:s - (has_expertise:e) - person:p
+            WHERE
+                lower(s.area) == lower(speciality_para) AND
+                e.willing_to_mentor == True AND
+                p.open_to_connect == True
+            
+            ACCUM
+                p.@has_expertise = e,
+                p.@speciality = s,
+                p.@score += e.proficiency_level - interest_level_para
+                
+            POST-ACCUM
+                p.@score += 4 - find_connectiondegree(personid_para, p.id),
+                p.@score = p.@score - find_twoway_blockdegreeremovedscore(personid_para, p.id),
+                p.@score += match_country(personid_para, p.id),
+                p.@score += match_gender(personid_para, p.id);
+
+        result2 = SELECT p FROM userVertexSet:s - ((block|reverse_block):b) -> person:p
+            WHERE s.id == personid_para
+            
+            POST-ACCUM
+                @@blockids += p.id;
+
+        mentorResult2 = SELECT s FROM mentorResult:s
+            WHERE NOT @@blockids.contains(s.id)
+            ORDER BY s.@score DESC;
+            
+        PRINT mentorResult2 AS result;
+    }
+    INSTALL QUERY find_mentors
+
+    CREATE QUERY find_mentees(INT personid_para, STRING speciality_para, INT proficiency_level_para) FOR GRAPH candoor {
+        SetAccum<INT> @@blockids;
+        SetAccum<Edge<has_aspiration>> @has_aspiration;
+        SetAccum<Vertex<speciality>> @speciality;
+        SumAccum<INT> @score;
+
+        start0 = {person.*};
+        userVertexSet = SELECT s FROM start0:s WHERE s.id == personid_para;  
+
+        start = {speciality.*};
+        menteeResult = SELECT p FROM start:s - (has_aspiration:e) - person:p
+            WHERE
+                lower(s.area) == lower(speciality_para) AND
+                e.looking_for_mentor == True AND
+                p.open_to_connect == True
+            
+            ACCUM
+                p.@has_aspiration = e,
+                p.@speciality = s,
+                p.@score += proficiency_level_para - e.interest_level
+                
+            POST-ACCUM
+                p.@score += 4 - find_connectiondegree(personid_para, p.id),
+                p.@score = p.@score - find_twoway_blockdegreeremovedscore(personid_para, p.id),
+                p.@score += match_country(personid_para, p.id),
+                p.@score += match_gender(personid_para, p.id);
+
+        result2 = SELECT p FROM userVertexSet:s - ((block|reverse_block):b) -> person:p
+            WHERE s.id == personid_para
+            
+            POST-ACCUM
+                @@blockids += p.id;
+
+        menteeResult2 = SELECT s FROM menteeResult:s
+            WHERE NOT @@blockids.contains(s.id)
+            ORDER BY s.@score DESC;
+            
+        PRINT menteeResult2 AS result;
+    }
+    INSTALL QUERY find_mentees
 '''
 
 
     results = conn.gsql(queries_gsql)
     print(results)
 
+
+
+endTime = time.time()
+print("time taken (min)")
+print((endTime - startTime)/60)
 
 
 # useful commands

@@ -20,6 +20,69 @@ conn = tg.TigerGraphConnection(host=hostName, graphname="candoor", username=user
 
 
 
+def find_mentees(personid, speciality, description, proficiency_level):
+    # returns ordered by score mentee list
+    # does not make use of description yet, but may in the future
+    # each result has keys as listed in temp.
+    # note that the key @has_aspiration is a dict with keys ["num", "description", "interest_level", "looking_for_mentor"]
+
+    params = {"personid_para": personid,
+              "speciality_para": speciality,
+              "proficiency_level_para": proficiency_level}
+    results = conn.runInstalledQuery("find_mentees", params=params)
+
+    menteeList = []
+
+    for el in results[0]["result"]:
+        # return only relevent parameters (for example, we don't want to return the password)
+        temp = {"id": el["attributes"]["id"],
+                "name": el["attributes"]["name"],
+                "email": el["attributes"]["email"],
+                "profile_picture": el["attributes"]["profile_picture"],
+                "profile_header": el["attributes"]["profile_header"],
+                "pronouns": el["attributes"]["pronouns"],
+                "profile_description": el["attributes"]["profile_description"],
+                "open_to_connect": el["attributes"]["open_to_connect"],
+                "@speciality": el["attributes"]["@speciality"][0],
+                "@has_aspiration": el["attributes"]["@has_aspiration"][0]["attributes"],
+                "@score": el["attributes"]["@score"]}
+
+        menteeList.append(temp)
+
+    return menteeList
+
+
+def find_mentors(personid, speciality, description, interest_level):
+    # returns ordered by score mentor list
+    # does not make use of description yet, but may in the future
+    # each result has keys as listed in temp.
+    # note that the key @has_expertise is a dict with keys ["num", "description", "proficiency_level", "willing_to_mentor"]
+
+    params = {"personid_para": personid,
+              "speciality_para": speciality,
+              "interest_level_para": interest_level}
+    results = conn.runInstalledQuery("find_mentors", params=params)
+
+    mentorList = []
+
+    for el in results[0]["result"]:
+        # return only relevent parameters (for example, we don't want to return the password)
+        temp = {"id": el["attributes"]["id"],
+                "name": el["attributes"]["name"],
+                "email": el["attributes"]["email"],
+                "profile_picture": el["attributes"]["profile_picture"],
+                "profile_header": el["attributes"]["profile_header"],
+                "pronouns": el["attributes"]["pronouns"],
+                "profile_description": el["attributes"]["profile_description"],
+                "open_to_connect": el["attributes"]["open_to_connect"],
+                "@speciality": el["attributes"]["@speciality"][0],
+                "@has_expertise": el["attributes"]["@has_expertise"][0]["attributes"],
+                "@score": el["attributes"]["@score"]}
+
+        mentorList.append(temp)
+
+    return mentorList
+
 def createNewUser(name, email, password, gender, country):
     # check if user exists in system
     checkUser = conn.runInstalledQuery("getperson_byemail", params={"email_para": email})
@@ -89,8 +152,6 @@ def update_userParticulars(personid, gender, location):
               "gender_para": gender,
               "location_para": location}
     results = conn.runInstalledQuery("update_userParticulars", params=params)
-
-
 
 def updatepassword(personid, newpassword):
     params = {"personid_vertex": personid,
@@ -238,6 +299,12 @@ def sendMessage(personid, otherpersonid, text, time):
 
 
 
+def getConnectionDegree(personid, otherpersonid):
+    results = conn.runInstalledQuery("find_connectiondegree", params={"personid_para": personid, "otherpersonid_para": otherpersonid})
+
+    return results[0]["@@connection"]
+
+
 check = createNewUser("Audrey", "audrey@gmail.com", "password", "Female", "Singapore")
 print(check)
 profile_dict = displayProfilePage(1)
@@ -271,3 +338,8 @@ sendMessage(1, 2, "Isn't candoor amazing??", datetime.now())
 sendMessage(1, 2, "yes :)))", datetime.now())
 displayChatList(1)
 getMessages(1, 2)
+
+getConnectionDegree(1,2)
+
+find_mentees(1, "engineering", "I've done validation engineering for 5 years. Feel free to ask.", 4)
+find_mentors(1, "machine learning", "I'm interested to learn machine learning.", 3)
