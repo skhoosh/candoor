@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <br>
+    <h4>Learn {{ speciality }} from:</h4>
+
+    {% for row in mentors %}
+
+    <div class="about_me">
+        <table class="about_me_table">
+            <tr>
+                <td class="about_me_td"><img src="/static/styles/img/{{ row.profile_picture }}" alt=""
+                        height="200px" width="200px"></td>
+                <td class="about_me_td">
+                    <h2><b>{{ row.name }}</b></h2>
+                    <p><i>{{ row.profile_header }}</i> </p>
+                    <p><b>{{ speciality }}</b></p>
+                    <p>
+                        {{ row.has_expertise.description }}
+                    </p>
+                    <button id="viewProfile" class="btn btn-dark" onclick="location.href='/profile/{{ row.id }}'">View Profile</button>
+                    <form action="/friend_request" method="POST" style="display:inline-block;">
+                        <input type="hidden" value="{{ row.id }}" name="friend_id">
+                    <button type="submit" id="sendFriendRequest" class="btn btn-dark">Send Friend Request</button>
+                </form>
+                <form action="/add_chatlist" method="POST" style="display:inline-block;">
+                    <input type="hidden" value="{{ row.id }}" name="friend_id">
+                <button type="submit" id="sendChat" class="btn btn-dark">Send Message</button>
+            </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+    {% endfor %}
+    <script>
+
+    </script>
+</div>
+{% endblock %}

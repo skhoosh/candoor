@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 # from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -19,6 +20,9 @@ from datetime import date
 
 # init SQLAlchemy so we can use it later in our models
 # db = SQLAlchemy()
+# Create two constant. They direct to the app root folder and logo upload folder
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(APP_ROOT, 'static', 'styles', 'img')
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -26,6 +30,9 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 app.config['SECRET_KEY'] = 'secret-key-goes-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -211,6 +218,109 @@ def sendMessage(personid, otherpersonid, text, time):
     results = conn.runInstalledQuery("send_a_message", params={"personid_para": personid, "otherpersonid_para": otherpersonid, "text_para": text, "time_para": str(time)})
 
 
+def update_profile(personid, name, profile_picture, profile_header, pronouns, profile_description, open_to_connect):
+    params = {"personid_vertex": personid,
+              "name_para": name,
+              "profile_picture_para": profile_picture,
+              "profile_header_para": profile_header,
+              "pronouns_para": pronouns,
+              "profile_description_para": profile_description,
+              "open_to_connect_para": open_to_connect}
+    results = conn.runInstalledQuery("update_profile", params=params)
+
+def find_mentees(personid, speciality, description, proficiency_level):
+    # returns ordered by score mentee list
+    # does not make use of description yet, but may in the future
+    # each result has keys as listed in temp.
+    # note that the key @has_aspiration is a dict with keys ["num", "description", "interest_level", "looking_for_mentor"]
+
+    params = {"personid_para": personid,
+              "speciality_para": speciality,
+              "proficiency_level_para": proficiency_level}
+    results = conn.runInstalledQuery("find_mentees", params=params)
+
+    menteeList = []
+
+    for el in results[0]["result"]:
+        # return only relevent parameters (for example, we don't want to return the password)
+        temp = {"id": el["attributes"]["id"],
+                "name": el["attributes"]["name"],
+                "email": el["attributes"]["email"],
+                "profile_picture": el["attributes"]["profile_picture"],
+                "profile_header": el["attributes"]["profile_header"],
+                "pronouns": el["attributes"]["pronouns"],
+                "profile_description": el["attributes"]["profile_description"],
+                "open_to_connect": el["attributes"]["open_to_connect"],
+                "speciality": el["attributes"]["@speciality"][0],
+                "has_aspiration": el["attributes"]["@has_aspiration"][0]["attributes"],
+                "score": el["attributes"]["@score"]}
+
+        menteeList.append(temp)
+
+    return menteeList
+
+def find_mentors(personid, speciality, description, interest_level):
+    # returns ordered by score mentor list
+    # does not make use of description yet, but may in the future
+    # each result has keys as listed in temp.
+    # note that the key @has_expertise is a dict with keys ["num", "description", "proficiency_level", "willing_to_mentor"]
+
+    params = {"personid_para": personid,
+              "speciality_para": speciality,
+              "interest_level_para": interest_level}
+    results = conn.runInstalledQuery("find_mentors", params=params)
+
+    mentorList = []
+
+    for el in results[0]["result"]:
+        # return only relevent parameters (for example, we don't want to return the password)
+        temp = {"id": el["attributes"]["id"],
+                "name": el["attributes"]["name"],
+                "email": el["attributes"]["email"],
+                "profile_picture": el["attributes"]["profile_picture"],
+                "profile_header": el["attributes"]["profile_header"],
+                "pronouns": el["attributes"]["pronouns"],
+                "profile_description": el["attributes"]["profile_description"],
+                "open_to_connect": el["attributes"]["open_to_connect"],
+                "speciality": el["attributes"]["@speciality"][0],
+                "has_expertise": el["attributes"]["@has_expertise"][0]["attributes"],
+                "score": el["attributes"]["@score"]}
+
+        mentorList.append(temp)
+
+    return mentorList
+
+def getConnectionDegree(personid, otherpersonid):
+    results = conn.runInstalledQuery("find_connectiondegree", params={"personid_para": personid, "otherpersonid_para": otherpersonid})
+
+    return results[0]["@@connection"]
+
+def delete_friend(personid, friendid):
+    results = conn.runInstalledQuery("delete_friend", params={"personid_vertex": personid, "friendid_para": friendid})
+
+
+def displayFriendRequests(personid):
+    results = conn.runInstalledQuery("show_friend_request", params={"personid_vertex": personid})
+
+    friendRequestList = []
+    for person in results[0]["result"]:
+        friendRequestList.append({"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
+
+    return friendRequestList
+
+def send_friendRequest(personid, friendid):
+    results = conn.runInstalledQuery("send_friend_request", params={"personid_para": personid, "friendid_para": friendid})
+
+def accept_friendRequest(personid, friendid):
+    results = conn.runInstalledQuery("accept_friend_request", params={"personid_vertex": personid, "friendid_para": friendid})
+
+def block_person(personid, blockid):
+    results = conn.runInstalledQuery("add_block", params={"personid_para": personid, "blockid_para": blockid})
+
+def unblock_person(personid, blockid):
+    results = conn.runInstalledQuery("delete_block", params={"personid_vertex": personid, "blockid_para": blockid})
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -365,24 +475,24 @@ def my_profile():
     return render_template('my_profile.html', nav_items=nav_items, my_profile_dict=my_profile_dict, expertise_mapping=expertise_mapping, aspiration_mapping=aspiration_mapping)
 
 # -------- EDIT MY PROFILE --------
-
-
 @app.route('/edit_about_me', methods=['POST'])
 @login_required
 def edit_about_me():
     displayName = request.form.get("displayName")
     headline = request.form.get("headline")
+    pronouns = request.form.get("pronouns")
     aboutme = request.form.get("aboutme")
+    personid = current_user.tg_id
+    if request.files["profilePicture"]: 
+        profilePicture = request.files["profilePicture"]
+        profilePictureFilename = f"{personid}_pp.jpg"
+        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], profilePictureFilename)
+        profilePicture.save(full_filename)
+    else: 
+        profilePictureFilename=request.form.get("hiddenProfilePicture")
 
-    about_me = {
-        "displayName": displayName,
-        "headline": headline,
-        "aboutme": aboutme
-    }
-
-    # Replace with code to write to TG
-    with open("edit_about_me.txt", "a") as f:
-        f.write(str(about_me)+"\n")
+    # Write to TG 
+    update_profile(personid, displayName, profilePictureFilename, headline, pronouns, aboutme, True)
 
     return redirect(url_for("my_profile"))
 
@@ -488,6 +598,78 @@ def delete_tell_me():
 
     return redirect(url_for("my_profile"))
 
+# -------- FIND PEOPLE RESULTS ---------
+@app.route('/find_people_to_tell', methods=['POST'])
+@login_required
+def find_people_to_tell():
+    nav_items = [
+        {"nav_label": "Me",
+         "nav_link": "/my-profile"},
+        {"nav_label": "Messages",
+         "nav_link": "/chat_home"},
+        {"nav_label": "Friends",
+         "nav_link": "/friends"},
+        {"nav_label": "Blocked",
+         "nav_link": "/blocked"},
+        {"nav_label": "Logout",
+         "nav_link": "/logout"}
+    ]
+
+    personid = current_user.tg_id
+    speciality = request.form.get("expertise_speciality")
+    description = request.form.get("expertise_description")
+    proficiency_level = request.form.get("proficiency_level")
+
+    mentees = find_mentees(personid, speciality, description, proficiency_level)
+
+    return render_template("mentees.html", mentees=mentees, speciality=speciality, nav_items=nav_items)
+
+@app.route('/find_people_to_ask', methods=['POST'])
+@login_required
+def find_people_to_ask():
+    nav_items = [
+        {"nav_label": "Me",
+         "nav_link": "/my-profile"},
+        {"nav_label": "Messages",
+         "nav_link": "/chat_home"},
+        {"nav_label": "Friends",
+         "nav_link": "/friends"},
+        {"nav_label": "Blocked",
+         "nav_link": "/blocked"},
+        {"nav_label": "Logout",
+         "nav_link": "/logout"}
+    ]
+
+    personid = current_user.tg_id
+    speciality = request.form.get("aspiration_speciality")
+    description = request.form.get("aspiration_description")
+    interest_level = request.form.get("aspiration_level")
+
+    mentors = find_mentors(personid, speciality, description, interest_level)
+
+    return render_template("mentors.html", mentors=mentors, speciality=speciality, nav_items=nav_items)
+
+
+@app.route('/find_people')
+@login_required
+def find_people():
+    people_list = [
+        {
+            "name": "Eva Bot",
+            "headline": "I'm a cute doggo",
+            "about_me": "I'm a cute and clever doggo. I like to play soccer and balls make me go crazyyyy."
+        },
+        {
+            "name": "Clover Bot",
+            "headline": "13/10 good doge",
+            "about_me": "I'm cute and fluffy. But I can be quite fierce sometimes. Don't cross me. "
+        },
+    ]
+
+    return render_template('find_people.html', people_list=people_list)
+
+
+
 # -------- CHAT ---------
 @app.route('/chat_home')
 @login_required
@@ -500,7 +682,7 @@ def chat_home():
     #     {"name": "Jane Brown", "id": 3}
     # ]
     friends_list = displayChatList(personid)
-    name_map = {personid: current_user.name}
+    name_map = {int(personid): current_user.name}
 
     for friend in friends_list:
         name_map[friend["id"]] = friend["name"]
@@ -529,6 +711,16 @@ def chat_home():
 
     return render_template('chat_home_test.html', nav_items=nav_items, friends_list=friends_list, name_map=name_map, username=current_user.name, friend_id=friend_id, room=room, personid=personid, messages=messages)
 
+@app.route('/add_chatlist', methods=['POST'])
+@login_required
+def add_chatlist():
+    personid = current_user.tg_id
+    friendid = request.form.get("friend_id")
+    text = "Hello"
+    sendMessage(personid, friendid, text, datetime.now())
+
+    return redirect(url_for("chat_home"))
+
 
 
 
@@ -547,25 +739,6 @@ def handle_join_room_event(data):
     socketio.emit('join_room_announcement', data)
 
 
-# -------- FIND PEOPLE RESULTS ---------
-@app.route('/find_people')
-@login_required
-def find_people():
-    people_list = [
-        {
-            "name": "Eva Bot",
-            "headline": "I'm a cute doggo",
-            "about_me": "I'm a cute and clever doggo. I like to play soccer and balls make me go crazyyyy."
-        },
-        {
-            "name": "Clover Bot",
-            "headline": "13/10 good doge",
-            "about_me": "I'm cute and fluffy. But I can be quite fierce sometimes. Don't cross me. "
-        },
-    ]
-
-    return render_template('find_people.html', people_list=people_list)
-
 
 # -------- VIEW OTHER USERS PROFILE ---------
 @app.route('/profile/<int:user_id>')
@@ -573,6 +746,8 @@ def find_people():
 def others(user_id):
     user_id = f'{escape(user_id)}'
     profile_dict = displayProfilePage(user_id)
+    personid = current_user.tg_id 
+    connection_degree = getConnectionDegree(personid, user_id)
 
     expertise_mapping = {
         0: "Hobbyist",
@@ -594,7 +769,7 @@ def others(user_id):
     ]
 
     # , tg_id=current_user.tg_id
-    return render_template('others_profile.html', nav_items=nav_items,  profile_dict=profile_dict, expertise_mapping=expertise_mapping)
+    return render_template('others_profile.html', nav_items=nav_items,  profile_dict=profile_dict, expertise_mapping=expertise_mapping, connection_degree = connection_degree)
 
 # -------- FRIENDS ---------
 @app.route('/friends')
@@ -603,18 +778,51 @@ def friends_list():
     personid = current_user.tg_id
     # personid = 1
     friend_list = displayFriendList(personid)
+    friend_requests = displayFriendRequests(personid)
 
     friend_profiles = []
     for friend in friend_list:
         friend_profile = displayProfilePage(friend["id"])
         friend_profiles.append(friend_profile)
 
-    return render_template('friends_list.html', friend_profiles=friend_profiles)
+    nav_items = [
+    {"nav_label": "About",
+        "nav_link": "#"},
+    {"nav_label": "Messages",
+        "nav_link": "/chat_home"},
+    {"nav_label": "My Profile",
+        "nav_link": "/my-profile"},
+    {"nav_label": "Logout",
+        "nav_link": "/logout"}
+    ]
+
+    return render_template('friends_list.html', nav_items=nav_items, friend_profiles=friend_profiles, friend_requests=friend_requests)
+
+@app.route('/friend_request', methods=['POST'])
+@login_required
+def send_friend_request():
+    personid = current_user.tg_id
+    friendid = request.form.get("friend_id")
+    send_friendRequest(personid, friendid)
+
+    return redirect(url_for("friends_list"))
+
 
 # -------- BLOCKED ---------
 @app.route('/blocked')
 @login_required
 def blocked_list():
+    nav_items = [
+        {"nav_label": "Me",
+         "nav_link": "/my-profile"},
+        {"nav_label": "Messages",
+         "nav_link": "/chat_home"},
+        {"nav_label": "Friends",
+         "nav_link": "/friends"},
+        {"nav_label": "Logout",
+         "nav_link": "/logout"}
+    ]
+
     personid = current_user.tg_id
     personid = 2
     blocked_list = displayBlockList(personid)
@@ -624,7 +832,9 @@ def blocked_list():
         blocked_profile = displayProfilePage(blocked["id"])
         blocked_profiles.append(blocked_profile)
 
-    return render_template('blocked_list.html', blocked_profiles=blocked_profiles)
+    return render_template('blocked_list.html', blocked_profiles=blocked_profiles, nav_items=nav_items)
+
+
 
 
 if __name__ == '__main__':

@@ -6,8 +6,10 @@
     <div class="about_me">
         <table class="about_me_table">
             <tr>
-                <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
-                        height="200px" width="200px"></td>
+                <!-- <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
+                        height="200px" width="200px"></td> -->
+                        <td class="about_me_td"><img id="profile_pic" src="" alt=""
+                            height="200px" width="200px"></td>
                 <td class="about_me_td">
                     <h2><b>{{ my_profile_dict.name }}</b></h2>
                     <p>{{ my_profile_dict.pronouns }}</p>
@@ -24,8 +26,8 @@
         <div class="ask_tell_header">
             <h4>Ask Me About</h4>
         </div>
-        <div class="ask_tell_body" action="/">
-            <form action="POST">
+        <div class="ask_tell_body">
+            <form action="/find_people_to_tell" method="POST" id="findMentees">
                 <table id="askTable" class="ask_tell_table">
                     {% for row in my_profile_dict.expertiseList %}
                     <tr class="ask_tell_tr" id="expertise_{{ row.num }}">
@@ -34,9 +36,14 @@
                         <td class="ask_tell_td">{{ row.description }}</td>
                         <td class="ask_tell_td">{{ expertise_mapping[row.proficiency_level] }}</td>
                         <td class="ask_tell_td" style="display:none;">{{ row.proficiency_level }}</td>
-                        <td class="ask_tell_td"><p class="close" onClick="confirmDeleteExpertise(event, this);">&times;</p></td>
+                        <td class="ask_tell_td">
+                            <p class="close" onClick="confirmDeleteExpertise(event, this);">&times;</p>
+                        </td>
                     </tr>
-                    {% endfor %}
+                    {% endfor %}    
+                    <input type="hidden" id="expertise_speciality_post" name="expertise_speciality">
+                    <input type="hidden" id="expertise_description_post" name="expertise_description">
+                    <input type="hidden" id="proficiency_level_post" name="proficiency_level">
 
                 </table>
                 <br>
@@ -52,8 +59,8 @@
         <div class="ask_tell_header">
             <h4>Tell Me About</h4>
         </div>
-        <div class="ask_tell_body" action="/">
-            <form action="POST">
+        <div class="ask_tell_body">
+            <form action="/find_people_to_ask" method="POST" id="findMentors">
                 <table id="tellTable" class="ask_tell_table">
                     {% for row in my_profile_dict.aspirationList %}
                     <tr class="ask_tell_tr" id="aspiration_{{ row.num }}">
@@ -62,9 +69,14 @@
                         <td class="ask_tell_td">{{ row.description }}</td>
                         <td class="ask_tell_td">{{ aspiration_mapping[row.interest_level] }}</td>
                         <td class="ask_tell_td" style="display:none;">{{ row.interest_level }}</td>
-                        <td class="ask_tell_td"><p class="close" onClick="confirmDeleteAspiration(event, this);">&times;</p></td>
+                        <td class="ask_tell_td">
+                            <p class="close" onClick="confirmDeleteAspiration(event, this);">&times;</p>
+                        </td>
                     </tr>
                     {% endfor %}
+                    <input type="hidden" id="aspiration_speciality_post" name="aspiration_speciality">
+                    <input type="hidden" id="aspiration_description_post" name="aspiration_description">
+                    <input type="hidden" id="aspiration_level_post" name="aspiration_level">
 
                 </table>
                 <br>
@@ -81,11 +93,21 @@
     <div id="editProfileAboutMe">
         <div class="editFormDiv">
             <p class="close" id="closeEditAboutMe">&times;</p> <br>
-            <form method="POST" action="/edit_about_me" id="myProfile">
+            <form method="POST" action="/edit_about_me" id="myProfile" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="profilePicture" class="form-label">Profile Picture</label>
+                    <input class="form-control" type="file" name="profilePicture" autofocus="">
+                    <input type="hidden" name="hiddenProfilePicture" value="{{ my_profile_dict.profile_picture }}">
+                </div>
                 <div class="mb-3">
                     <label for="displayName" class="form-label">Display Name</label>
                     <input class="form-control" type="text" name="displayName" autofocus=""
                         value="{{ my_profile_dict.name }}">
+                </div>
+                <div class="mb-3">
+                    <label for="pronouns" class="form-label">Pronouns</label>
+                    <input class="form-control" type="text" name="pronouns" autofocus=""
+                        value="{{ my_profile_dict.pronouns }}">
                 </div>
 
                 <div class="mb-3">
@@ -149,7 +171,8 @@
             <form method="POST" action="/edit_tell_me_about" id="tellMeAboutForm">
                 <div class="mb-3">
                     <label for="aspiration" class="form-label">What would you like to learn about?</label>
-                    <input id="editAspirationSpeciality" class="form-control" type="text" name="aspiration" autofocus="">
+                    <input id="editAspirationSpeciality" class="form-control" type="text" name="aspiration"
+                        autofocus="">
                 </div>
 
                 <div class="mb-3">
@@ -190,7 +213,7 @@
         </div>
     </div>
 
-    
+
     <!-- Modal- confirm delete ASK ME ABOUT  -->
     <div id="deleteTellMeAbout">
         <div class="editFormDiv">
@@ -198,7 +221,8 @@
             <p><b>Do you want to delete this speciality?</b></p>
             <p id="deleteAspiration"></p>
             <form method="POST" action="/delete_tell_me" id="deleteTellMeForm">
-                <input id="deleteAspirationSpeciality" class="form-control" type="hidden" name="aspiration" autofocus="">
+                <input id="deleteAspirationSpeciality" class="form-control" type="hidden" name="aspiration"
+                    autofocus="">
                 <input type="hidden" name="aspirationNum" display="hidden" id="deleteAspirationNum">
                 <button type="submit" class="btn btn-danger">Delete</button>
             </form>
@@ -208,189 +232,233 @@
 
 
     <script>
-        // ============== ENABLE or DISABLE FIND PEOPLE ===============
-        if (document.getElementById("askTable").rows.length) {
-            document.getElementById("findPeopleAskMe").disabled = false;
-            document.getElementById("btnEditAskMe").disabled= false;
+        // SET PROFILE PIC TO DEFAULT IF NOT EXISTS 
+        var profile_pic = "{{ my_profile_dict.profile_picture }}"
+        if (profile_pic) {
+            document.getElementById("profile_pic").src = "/static/styles/img/{{ my_profile_dict.profile_picture }}"
+
         } else {
-            document.getElementById("findPeopleAskMe").disabled = true;
-            document.getElementById("btnEditAskMe").disabled= true;
+            document.getElementById("profile_pic").src = "/static/styles/img/fluid_bg.jpg"
         }
 
-        if (document.getElementById("tellTable").rows.length) {
-            document.getElementById("findPeopleTellMe").disabled = false;
-            document.getElementById("btnEditTellMe").disabled= false;
-        } else {
-            document.getElementById("findPeopleTellMe").disabled = true;
-            document.getElementById("btnEditTellMe").disabled= true;
+            // ============== ENABLE or DISABLE FIND PEOPLE ===============
+            if (document.getElementById("askTable").rows.length) {
+                document.getElementById("findPeopleAskMe").disabled = false;
+                document.getElementById("btnEditAskMe").disabled = false;
+            } else {
+                document.getElementById("findPeopleAskMe").disabled = true;
+                document.getElementById("btnEditAskMe").disabled = true;
+            }
 
-        }
+            if (document.getElementById("tellTable").rows.length) {
+                document.getElementById("findPeopleTellMe").disabled = false;
+                document.getElementById("btnEditTellMe").disabled = false;
+            } else {
+                document.getElementById("findPeopleTellMe").disabled = true;
+                document.getElementById("btnEditTellMe").disabled = true;
 
-        // ============== EDIT PROFILE =================
-        // Open Edit Profile
-        document.getElementById("btnEditProfile").onclick = function () {
-            document.getElementById("editProfileAboutMe").style.display = "block";
-        }
+            }
 
-        // Close Edit Profile 
-        document.getElementById("closeEditAboutMe").onclick = function () {
-            document.getElementById("editProfileAboutMe").style.display = "none";
+            // ============== EDIT PROFILE =================
+            // Open Edit Profile
+            document.getElementById("btnEditProfile").onclick = function () {
+                document.getElementById("editProfileAboutMe").style.display = "block";
+            }
 
-        }
-        // ============== DEFAULT CHECK FIRST BUTTON OF RADIO =================
-        if (document.getElementsByName("expertiseRadio").length) {
-            document.getElementsByName("expertiseRadio")[0].checked = true;
-        }
+            // Close Edit Profile 
+            document.getElementById("closeEditAboutMe").onclick = function () {
+                document.getElementById("editProfileAboutMe").style.display = "none";
 
-        if (document.getElementsByName("aspirationsRadio").length) {
-            document.getElementsByName("aspirationsRadio")[0].checked = true;
-        }
+            }
+            // ============== DEFAULT CHECK FIRST BUTTON OF RADIO =================
+            if (document.getElementsByName("expertiseRadio").length) {
+                document.getElementsByName("expertiseRadio")[0].checked = true;
+            }
+
+            if (document.getElementsByName("aspirationsRadio").length) {
+                document.getElementsByName("aspirationsRadio")[0].checked = true;
+            }
 
 
-        // **************** ASK ME ABOUT ********************
-        // ============== EDIT ASK ME ABOUT =================
-        // Open Edit
-        document.getElementById("btnEditAskMe").onclick = function () {
-            // Set form action:
-            document.getElementById("askMeAboutForm").action = "/edit_ask_me_about"
+            // **************** ASK ME ABOUT ********************
+            // ============== EDIT ASK ME ABOUT =================
+            // Open Edit
+            document.getElementById("btnEditAskMe").onclick = function () {
+                // Set form action:
+                document.getElementById("askMeAboutForm").action = "/edit_ask_me_about"
 
-            // Get existing info: 
-            var expertise_id = document.querySelector('input[name="expertiseRadio"]:checked').value
-            var expertise_row = document.getElementById("expertise_" + expertise_id)
-            var expertise_speciality = expertise_row.children[1].textContent
-            var expertise_description = expertise_row.children[2].textContent
-            var expertise_level_text = expertise_row.children[3].textContent
-            var expertise_level_value = expertise_row.children[4].textContent
+                // Get existing info: 
+                var expertise_id = document.querySelector('input[name="expertiseRadio"]:checked').value
+                var expertise_row = document.getElementById("expertise_" + expertise_id)
+                var expertise_speciality = expertise_row.children[1].textContent
+                var expertise_description = expertise_row.children[2].textContent
+                var expertise_level_text = expertise_row.children[3].textContent
+                var expertise_level_value = expertise_row.children[4].textContent
 
-            // Map existing info to form: 
-            document.getElementById("editExpertiseSpeciality").value = expertise_speciality
-            document.getElementById("editDescribeExpertise").value = expertise_description
-            document.getElementById("editExpertiseLevel").value = expertise_level_value
-            document.getElementById("expertiseNum").value = expertise_id
+                // Map existing info to form: 
+                document.getElementById("editExpertiseSpeciality").value = expertise_speciality
+                document.getElementById("editDescribeExpertise").value = expertise_description
+                document.getElementById("editExpertiseLevel").value = expertise_level_value
+                document.getElementById("expertiseNum").value = expertise_id
 
-            // Display Form
-            document.getElementById("editAskMeAbout").style.display = "block";
+                // Display Form
+                document.getElementById("editAskMeAbout").style.display = "block";
 
-        }
+            }
 
-        // Close Edit 
-        document.getElementById("closeEditAskMeAbout").onclick = function () {
-            document.getElementById("editAskMeAbout").style.display = "none";
+            // Close Edit 
+            document.getElementById("closeEditAskMeAbout").onclick = function () {
+                document.getElementById("editAskMeAbout").style.display = "none";
 
-        }
+            }
 
-        // ============== ADD ASK ME ABOUT =================
-        // Open Edit 
-        document.getElementById("addAskMe").onclick = function () {
-            // Set form action:
-            document.getElementById("askMeAboutForm").action = "/add_ask_me_about"
+            // ============== FIND MENTEES =================
+            document.getElementById("findPeopleAskMe").onclick = function () {
+                // Get existing info: 
+                var expertise_id = document.querySelector('input[name="expertiseRadio"]:checked').value;
+                var expertise_row = document.getElementById("expertise_" + expertise_id);
+                var expertise_speciality = expertise_row.children[1].textContent;
+                var expertise_description = expertise_row.children[2].textContent;
+                // var expertise_level_text = expertise_row.children[3].textContent
+                var expertise_level_value = expertise_row.children[4].textContent;
 
-            // Set expertise num 
-            var no_of_rows = document.getElementById("askTable").rows.length
-            document.getElementById("expertiseNum").value = no_of_rows+1
-
-            // Display Form
-            document.getElementById("editAskMeAbout").style.display = "block";
-        }
-        // Close Edit 
-        document.getElementById("closeEditAskMeAbout").onclick = function () {
-            document.getElementById("editAskMeAbout").style.display = "none";
-        }
+                document.getElementById("expertise_speciality_post").value = expertise_speciality;
+                document.getElementById("expertise_description_post").value = expertise_description;
+                document.getElementById("proficiency_level_post").value = expertise_level_value;
+                
+                document.getElementById("findMentees").submit()
+            }
+            
         
-        // ============== DELETE ASK ME ABOUT =================
-        function confirmDeleteExpertise(e,el) {
-            // Get existing info:
-            var expertise_row = el.parentNode.parentNode
-            var expertise_speciality = expertise_row.children[1].textContent
-            var expertise_num = expertise_row.children[0].firstChild.value
+            // ============== ADD ASK ME ABOUT =================
+            // Open Edit 
+            document.getElementById("addAskMe").onclick = function () {
+                // Set form action:
+                document.getElementById("askMeAboutForm").action = "/add_ask_me_about"
 
-            // Set form inputs: 
-            document.getElementById("deleteExpertise").textContent = expertise_speciality
-            document.getElementById("deleteExpertiseSpeciality").value = expertise_speciality
-            document.getElementById("deleteExpertiseNum").value = expertise_num
+                // Set expertise num 
+                var no_of_rows = document.getElementById("askTable").rows.length
+                document.getElementById("expertiseNum").value = no_of_rows + 1
 
-            // Show Confirm delete
-            document.getElementById("deleteAskMeAbout").style.display = "block";
-            // console.log(el.parentNode.parentNode);
-        }
+                // Display Form
+                document.getElementById("editAskMeAbout").style.display = "block";
+            }
+            // Close Edit 
+            document.getElementById("closeEditAskMeAbout").onclick = function () {
+                document.getElementById("editAskMeAbout").style.display = "none";
+            }
 
-         // Close delete ask me about 
-         document.getElementById("closeDeleteAskMe").onclick = function () {
-            document.getElementById("deleteAskMeAbout").style.display = "none";
-        }
+            // ============== DELETE ASK ME ABOUT =================
+            function confirmDeleteExpertise(e, el) {
+                // Get existing info:
+                var expertise_row = el.parentNode.parentNode
+                var expertise_speciality = expertise_row.children[1].textContent
+                var expertise_num = expertise_row.children[0].firstChild.value
+
+                // Set form inputs: 
+                document.getElementById("deleteExpertise").textContent = expertise_speciality
+                document.getElementById("deleteExpertiseSpeciality").value = expertise_speciality
+                document.getElementById("deleteExpertiseNum").value = expertise_num
+
+                // Show Confirm delete
+                document.getElementById("deleteAskMeAbout").style.display = "block";
+                // console.log(el.parentNode.parentNode);
+            }
+
+            // Close delete ask me about 
+            document.getElementById("closeDeleteAskMe").onclick = function () {
+                document.getElementById("deleteAskMeAbout").style.display = "none";
+            }
 
 
-         // **************** TELL ME ABOUT ********************
-        // ============== EDIT TELL ME ABOUT =================
-        // Open Edit 
-        document.getElementById("btnEditTellMe").onclick = function () {
-            // Set form action:
-            document.getElementById("tellMeAboutForm").action = "/edit_tell_me_about"
+            // **************** TELL ME ABOUT ********************
+            // ============== EDIT TELL ME ABOUT =================
+            // Open Edit 
+            document.getElementById("btnEditTellMe").onclick = function () {
+                // Set form action:
+                document.getElementById("tellMeAboutForm").action = "/edit_tell_me_about"
 
-            // Get existing info: 
-            var aspiration_id = document.querySelector('input[name="aspirationsRadio"]:checked').value
-            var aspiration_row = document.getElementById("aspiration_" + aspiration_id)
-            var aspiration_speciality = aspiration_row.children[1].textContent
-            var aspiration_description = aspiration_row.children[2].textContent
-            var aspiration_level_text = aspiration_row.children[3].textContent
-            var aspiration_level_value = aspiration_row.children[4].textContent
+                // Get existing info: 
+                var aspiration_id = document.querySelector('input[name="aspirationsRadio"]:checked').value
+                var aspiration_row = document.getElementById("aspiration_" + aspiration_id)
+                var aspiration_speciality = aspiration_row.children[1].textContent
+                var aspiration_description = aspiration_row.children[2].textContent
+                var aspiration_level_text = aspiration_row.children[3].textContent
+                var aspiration_level_value = aspiration_row.children[4].textContent
 
-            // Map existing info to form: 
-            document.getElementById("editAspirationSpeciality").value = aspiration_speciality
-            document.getElementById("editDescribeAspiration").value = aspiration_description
-            document.getElementById("editAspirationLevel").value = aspiration_level_value
-            document.getElementById("aspirationNum").value = aspiration_id
+                // Map existing info to form: 
+                document.getElementById("editAspirationSpeciality").value = aspiration_speciality
+                document.getElementById("editDescribeAspiration").value = aspiration_description
+                document.getElementById("editAspirationLevel").value = aspiration_level_value
+                document.getElementById("aspirationNum").value = aspiration_id
 
-            // Display Form
-            document.getElementById("editTellMeAbout").style.display = "block";
+                // Display Form
+                document.getElementById("editTellMeAbout").style.display = "block";
 
-        }
+            }
 
-        // Close Edit
-        document.getElementById("closeEditTellMeAbout").onclick = function () {
-            document.getElementById("editTellMeAbout").style.display = "none";
+            // Close Edit
+            document.getElementById("closeEditTellMeAbout").onclick = function () {
+                document.getElementById("editTellMeAbout").style.display = "none";
 
-        }
+            }
 
-        // ============== ADD TELL ME ABOUT =================
-        // Open Edit 
-        document.getElementById("addTellMe").onclick = function () {
-            // Set form action:
-            document.getElementById("tellMeAboutForm").action = "/add_tell_me_about"
+            // ============== FIND MENTORS =================
+            document.getElementById("findPeopleTellMe").onclick = function () {
+                // Get existing info: 
+                var aspiration_id = document.querySelector('input[name="aspirationsRadio"]:checked').value
+                var aspiration_row = document.getElementById("aspiration_" + aspiration_id)
+                var aspiration_speciality = aspiration_row.children[1].textContent
+                var aspiration_description = aspiration_row.children[2].textContent
+                // var aspiration_level_text = aspiration_row.children[3].textContent
+                var aspiration_level_value = aspiration_row.children[4].textContent
 
-            // Set aspiration num 
-            var no_of_rows = document.getElementById("tellTable").rows.length
-            document.getElementById("aspirationNum").value = no_of_rows+1
+                document.getElementById("aspiration_speciality_post").value = aspiration_speciality;
+                document.getElementById("aspiration_description_post").value = aspiration_description;
+                document.getElementById("aspiration_level_post").value = aspiration_level_value;
+                
+                document.getElementById("findMentors").submit()
+            }
 
-            // Display Form
-            document.getElementById("editTellMeAbout").style.display = "block";
-        }
-        // Close Edit 
-        document.getElementById("closeEditTellMeAbout").onclick = function () {
-            document.getElementById("editTellMeAbout").style.display = "none";
-        }
-        
-        // ============== DELETE TELL ME ABOUT =================
-        function confirmDeleteAspiration(e,el) {
-            // Get existing info:
-            var aspiration_row = el.parentNode.parentNode
-            var aspiration_speciality = aspiration_row.children[1].textContent
-            var aspiration_num = aspiration_row.children[0].firstChild.value
+            // ============== ADD TELL ME ABOUT =================
+            // Open Edit 
+            document.getElementById("addTellMe").onclick = function () {
+                // Set form action:
+                document.getElementById("tellMeAboutForm").action = "/add_tell_me_about"
 
-            // Set form inputs: 
-            document.getElementById("deleteAspiration").textContent = aspiration_speciality
-            document.getElementById("deleteAspirationSpeciality").value = aspiration_speciality
-            document.getElementById("deleteAspirationNum").value = aspiration_num
+                // Set aspiration num 
+                var no_of_rows = document.getElementById("tellTable").rows.length
+                document.getElementById("aspirationNum").value = no_of_rows + 1
 
-            // Show Confirm delete
-            document.getElementById("deleteTellMeAbout").style.display = "block";
-            // console.log(el.parentNode.parentNode);
-        }
+                // Display Form
+                document.getElementById("editTellMeAbout").style.display = "block";
+            }
+            // Close Edit 
+            document.getElementById("closeEditTellMeAbout").onclick = function () {
+                document.getElementById("editTellMeAbout").style.display = "none";
+            }
 
-         // Close delete ask me about 
-         document.getElementById("closeDeleteTellMe").onclick = function () {
-            document.getElementById("deleteTellMeAbout").style.display = "none";
-        }
+            // ============== DELETE TELL ME ABOUT =================
+            function confirmDeleteAspiration(e, el) {
+                // Get existing info:
+                var aspiration_row = el.parentNode.parentNode
+                var aspiration_speciality = aspiration_row.children[1].textContent
+                var aspiration_num = aspiration_row.children[0].firstChild.value
+
+                // Set form inputs: 
+                document.getElementById("deleteAspiration").textContent = aspiration_speciality
+                document.getElementById("deleteAspirationSpeciality").value = aspiration_speciality
+                document.getElementById("deleteAspirationNum").value = aspiration_num
+
+                // Show Confirm delete
+                document.getElementById("deleteTellMeAbout").style.display = "block";
+                // console.log(el.parentNode.parentNode);
+            }
+
+            // Close delete ask me about 
+            document.getElementById("closeDeleteTellMe").onclick = function () {
+                document.getElementById("deleteTellMeAbout").style.display = "none";
+            }
 
 
 

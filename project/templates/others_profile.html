@@ -2,6 +2,8 @@
 
 {% block content %}
 <div class="container-fluid">
+    <div class="connection_details">
+    </div>
 
     <div class="about_me">
         <table id="askTable" class="about_me_table">
@@ -9,8 +11,9 @@
                 <td class="about_me_td"><img id="profile_pic" src="" alt=""
                         height="200px" width="200px"></td>
                 <td class="about_me_td">
-                    <h2><b>{{ profile_dict.name }}</b></h2>
-                    <p>{{ profile_dict.pronouns }}</p>
+                    <h2><b>{{ profile_dict.name }}</b></h2> 
+                    <p>{{ connection_degree }} degrees</p>
+                    <p> {{ profile_dict.pronouns }}</p>
                     <p><i>{{ profile_dict.profile_header }}</i></p>
                     <p>
                         {{ profile_dict.profile_description }}

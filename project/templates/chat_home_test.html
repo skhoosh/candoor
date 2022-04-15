@@ -10,18 +10,18 @@
             {% for row in friends_list %}
             <div class="chatPerson">
                 <form action="/chat_home">
-                <input type="hidden" name="room" value="{{ personid }}_to_{{ row.id }}">
-                <input type="hidden" name="friend_id" value="{{ row.id }}">
-                <button type="submit" id="{{ personid }}_to_{{ row.id }}" class="btn btn-dark">
-                    {{ row.name }}
-                </button>
-            </form>
+                    <input type="hidden" name="room" value="{{ personid }}_to_{{ row.id }}">
+                    <input type="hidden" name="friend_id" value="{{ row.id }}">
+                    <button type="submit" id="{{ personid }}_to_{{ row.id }}" class="btn btn-dark">
+                        {{ row.name }}
+                    </button>
+                </form>
             </div>
 
             {% endfor %}
 
         </div>
-
+        <!-- {{ name_map }} -->
         <div class="col-8 chatBox">
             <div class="chatBoxLabel">
                 <h4>Messages</h4>
@@ -51,7 +51,7 @@
                 </table>
             </div>
 
-    
+
 
         </div>
 
@@ -108,7 +108,20 @@
     //     // document.getElementById('messages').appendChild(newNode);
     // })
 
-    document.getElementById("{{ room }}").style.color = "#eba3d8ff"
+    // Ask user to choose a friend if no params found 
+    var url = window.location.href;
+    var arr = url.split('?');
+    if (arr.length > 1 && arr[1] !== '') {
+        console.log('params found');
+        document.getElementById("{{ room }}").style.color = "#eba3d8ff"
+
+    } else { 
+        // document.getElementById("messages").style.backgroundColor = "grey";
+         document.getElementById("messages").innerHTML = "<h2>Select Friend to Chat With</h2>";
+        document.getElementById("sendMsg").disabled = true;
+
+    }
+
 </script>
 
 </div>
