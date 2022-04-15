@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>Friends</h1>
+
+    {% for row in friend_profiles %}
+
+    <div class="about_me">
+        <table class="about_me_table">
+            <tr>
+                <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
+                        height="200px" width="200px"></td>
+                <td class="about_me_td">
+                    <h2><b>{{ row.name }}</b></h2>
+                    <p><i>{{ row.profile_header }}</i> </p>
+                    <p>
+                        {{ row.profile_description }}
+                    </p>
+                    <button id="viewProfile" class="btn btn-dark">View Profile</button>
+                    <button id="sendMessage" class="btn btn-dark">Send Message</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

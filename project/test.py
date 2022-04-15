@@ -18,53 +18,69 @@ conn = tg.TigerGraphConnection(host=hostName, graphname="candoor",
 # tg_max_id = conn.getVertexCount("person")
 # print(tg_max_id)
 
-def displayProfilePage(personid):
-    # personid needs to exist in database
-    results = conn.runInstalledQuery("getProfilePage_bypersonid", params={"id_para": personid})
+def displayBlockList(personid):
+    results = conn.runInstalledQuery("getBlockList", params={"personid_vertex": personid})
 
-    name = results[0]["result"][0]["attributes"]["name"]
-    profile_picture = results[0]["result"][0]["attributes"]["profile_picture"]
-    profile_header = results[0]["result"][0]["attributes"]["profile_header"]
-    pronouns = results[0]["result"][0]["attributes"]["pronouns"]
-    profile_description = results[0]["result"][0]["attributes"]["profile_description"]
-    open_to_connect = results[0]["result"][0]["attributes"]["open_to_connect"]
+    blockList = []
+    for person in results[0]["result"]:
+        blockList.append({"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
 
+    return blockList
 
-    if "@expertise" in results[0]["result"][0]["attributes"]:
-        expertiseList = results[0]["result"][0]["attributes"]["@expertise"]
-        expertiseList = [expertise["attributes"] | {"speciality": expertise["to_id"]} for expertise in expertiseList]
-        expertiseList = sorted(expertiseList, key = lambda dict: dict["num"])
-        # each element in expertiseList has keys "num", "description", "proficiency_level", "willing_to_mentor", "speciality"
-    else:
-        expertiseList = []
+def find_mentees(personid, speciality, description, proficiency_level):
+    # returns ordered by score mentee list
+    # does not make use of description yet, but may in the future
+    # each result has keys as listed in temp.
+    # note that the key @has_aspiration is a dict with keys ["num", "description", "interest_level", "looking_for_mentor"]
 
-    if "@aspiration" in results[0]["result"][0]["attributes"]:
-        aspirationList = results[0]["result"][0]["attributes"]["@aspiration"]
-        aspirationList = [aspiration["attributes"] | {"speciality": aspiration["to_id"]} for aspiration in aspirationList]
-        aspirationList = sorted(aspirationList, key = lambda dict: dict["num"])
-        # each element in aspirationList has keys "num", "description", "interest_level", "looking_for_mentor", "speciality"
-    else:
-        aspirationList = []
+    params = {"personid_para": personid,
+              "speciality_para": speciality,
+              "proficiency_level_para": proficiency_level}
+    results = conn.runInstalledQuery("find_mentees", params=params)
 
-    profile_page_dict = {"name": name,
-                         "profile_picture": profile_picture,
-                         "profile_header": profile_header,
-                         "pronouns": pronouns,
-                         "profile_description": profile_description,
-                         "open_to_connect": open_to_connect,
-                         "expertiseList": expertiseList,
-                         "aspirationList": aspirationList}
+    menteeList = []
 
-    return profile_page_dict
+    for el in results[0]["result"]:
+        # return only relevent parameters (for example, we don't want to return the password)
+        temp = {"id": el["attributes"]["id"],
+                "name": el["attributes"]["name"],
+                "email": el["attributes"]["email"],
+                "profile_picture": el["attributes"]["profile_picture"],
+                "profile_header": el["attributes"]["profile_header"],
+                "pronouns": el["attributes"]["pronouns"],
+                "profile_description": el["attributes"]["profile_description"],
+                "open_to_connect": el["attributes"]["open_to_connect"],
+                "@speciality": el["attributes"]["@speciality"][0],
+                "@has_aspiration": el["attributes"]["@has_aspiration"][0]["attributes"],
+                "@score": el["attributes"]["@score"]}
 
+        menteeList.append(temp)
+
+    return menteeList
 
 # a = displayProfilePage(2)
-print(displayProfilePage("1"))
+# print(displayProfilePage("1"))
 # print(displayProfilePage("2"))
+
+# print(displayBlockList(4))
+
+# print(find_mentees(1, "engineering", "I've done validation engineering for 5 years. Feel free to ask.", 4))
 
 # a = conn.getVertices("person", select="name,email,pronouns", where="id=6", limit="", sort="", timeout=0)
 
 # print(a)
+
+def displayFriendList(personid):
+    results = conn.runInstalledQuery("getFriendList", params={"personid_vertex": personid})
+
+    friendList = []
+    for person in results[0]["result"]:
+        friendList.append({"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
+
+    return friendList
+
+
+# print(displayFriendList(2))
 
 # b= conn.gsql('select name,email from person where id==6')
 # print(b)
@@ -97,3 +113,33 @@ a = {'name': 'Stephanie Bot',
         'looking_for_mentor': False, 
         'speciality': 'art'}]
         }
+
+def getMessages(personid, otherpersonid):
+    results = conn.runInstalledQuery("show_messages", params={"personid_para": personid, "otherpersonid_para": otherpersonid})
+
+    messageList = []
+    for message in results[0]["result"]:
+        messageList.append({"sender": message["attributes"]["@sender"][0], "text": message["attributes"]["text"], "time": message["attributes"]["time"]})
+
+    return messageList
+
+print(getMessages(1,2))
+
+
+b =[{'sender': 1, 'text': "Hi Stephanie, I'm interested to learn more about machine learning. Is it ok if you could give me some pointers on where to start? Thanks.", 'time': '2022-03-27 09:26:03'}, 
+{'sender': 2, 'text': 'hi', 'time': '2022-04-15 02:28:52'}, 
+{'sender': 1, 'text': "Isn't candoor amazing??", 'time': '2022-04-15 02:28:53'}, 
+{'sender': 1, 'text': 'yes :)))', 'time': '2022-04-15 02:28:53'}]
+
+def displayChatList(personid):
+    results = conn.runInstalledQuery("get_chat_list", params={"personid_vertex": personid})
+
+    chatList = []
+    for person in results[0]["result"]:
+        chatList.append({"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
+
+    return chatList
+
+# print(displayChatList(1))
+
+c = [{'name': 'Stephanie Bot', 'id': 2},{'name': 'Stephanie Bot', 'id': 3}, {'name': 'Stephanie Bot', 'id': 6} ]

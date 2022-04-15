@@ -2,6 +2,11 @@
 
 {% block content %}
 <div class="container-fluid">
+    <!-- <form action="/chat_home">
+        <input type="text" name="username">
+        <input type="text" name="room">
+        <button type="submit">Submit</button>
+    </form> -->
     <div class="row messagesContainer">
         <div class="col-4 chatPeople">
             <div class="chatPeopleLabel">
@@ -10,9 +15,8 @@
             {% for row in friends_list %}
             <div class="chatPerson">
                 <form action="/chat_home">
-                <input type="hidden" name="room" value="{{ personid }}_to_{{ row.id }}">
                 <input type="hidden" name="friend_id" value="{{ row.id }}">
-                <button type="submit" id="{{ personid }}_to_{{ row.id }}" class="btn btn-dark">
+                <button type="submit" id="friend_{{ row.id }}" class="btn btn-dark">
                     {{ row.name }}
                 </button>
             </form>
@@ -28,11 +32,7 @@
             </div>
 
             <div id="messages">
-                {% for message in messages %}
-                <div><b>{{ name_map[message.sender] }}:</b>&nbsp;{{ message.text }}</div>
-                {% endfor %}
 
-                <!-- {{ messages }} -->
             </div>
             <!-- form will not be GET/POST request, just track the submission to get the msg -->
             <div id="messageArea">
@@ -42,6 +42,9 @@
                             <td>
                                 <textarea name="message" id="message_input" cols="80" rows="3"
                                     placeholder="Enter your message here"></textarea>
+                                <!-- <div id="textBox" contenteditable="true" name="textBox">
+
+                            </div> -->
                             </td>
                             <td>
                                 <button id="sendMsg" type="submit" class="btn btn-light">Send</button>
@@ -50,8 +53,6 @@
                     </tr>
                 </table>
             </div>
-
-    
 
         </div>
 
@@ -66,12 +67,10 @@
     socket.on('connect', function () {
         socket.emit('join_room', {
             username: "{{ username }}",
-            sender: "{{ personid }}",
-            receiver: "{{ friend_id }}",
-            room: "{{ personid }}_to_{{ friend_id }}"
+            room: "{{ room }}"
         });
 
-        // To send messages (i.e. back to server side)
+        // To send messages
         let message_input = document.getElementById('message_input');
         // e - event 
         document.getElementById('message_input_form').onsubmit = function (e) {
@@ -80,9 +79,7 @@
             if (message.length) { // check that message length is more than 0 
                 socket.emit('send_message', {
                     username: "{{ username }}",
-                    sender: "{{ personid }}",
-                    receiver: "{{ friend_id }}",
-                    room: "{{ personid }}_to_{{ friend_id }}",
+                    room: "{{ room }}",
                     message: message
                 })
 
@@ -92,7 +89,7 @@
         }
     });
 
-    // handle receive message (i.e emit receive_message after send message received)
+    // handle receive message 
     socket.on('receive_message', function (data) {
         const newNode = document.createElement('div')
         newNode.innerHTML = `<b>${data.username}:&nbsp;</b> ${data.message}`
@@ -100,15 +97,15 @@
     })
 
     // when someone else joins the room 
-    // socket.on('join_room_announcement', function (data) {
-    //     console.log(messages)
-    //     // put in messages:
-    //     // const newNode = document.createElement('div')
-    //     // newNode.innerHTML = `<b>${data.username}</b> has joined the room`
-    //     // document.getElementById('messages').appendChild(newNode);
-    // })
+    socket.on('join_room_announcement', function (data) {
+        console.log(data)
+        // put in messages:
+        const newNode = document.createElement('div')
+        newNode.innerHTML = `<b>${data.username}</b> has joined the room`
+        document.getElementById('messages').appendChild(newNode);
+    })
 
-    document.getElementById("{{ room }}").style.color = "#eba3d8ff"
+    document.getElementById("friend_{{ friend_id }}").style.color = "#eba3d8ff"
 </script>
 
 </div>
