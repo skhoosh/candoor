@@ -19,7 +19,8 @@ Activate the virtual environment:
 Our project requires libraries, listed in the requirements.txt file. Install the required packages in the virtual environment:
 > pip install -r requirements.txt
 
-Making a tigergraph account and creating a blank tigergraph database
+
+### Making a tigergraph account and creating a blank tigergraph database
 1. Sign up for a free tigergraph account at https://tgcloud.io/ if you do not have one.
 2. When you are signed in to your tigergraph cloud account, click on the "My Solutions" tab on the left hand side.
 3. On the right hand side, click on the blue "Create Solution" button to create a new tigergraph database.
@@ -34,10 +35,11 @@ Making a tigergraph account and creating a blank tigergraph database
  next to it will turn blue. You may click on the "Applications" icon and "GraphStudio" to see the tigergraph database.
  In main.py and app.py, change the variable "hostName" to the domain name you found in step 9.
  
- Setting up the tigergraph database
+ 
+### Setting up the tigergraph database
  1. Run main.py. This creates the graph schema, and installs all of the tigergraph queries. Please be patient, in our tests, it took us about 40mins for the code to run.  as tigergraph takes time to install the queries so they can be run super fast later on.
 
-Getting started with Candoor:
+### Getting started with Candoor!
 1. Once the tigergraph database has been setup, run app.py.
 2. When the app says it's running, open your browser of choice and head to http://localhost:5000 to access Candoor.
 3. Alternatively,  enter the address stated after "wsgi starting up on" into your browser.
