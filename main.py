@@ -442,6 +442,15 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY show_friend_request
+    
+    CREATE QUERY show_sent_friend_request(Vertex<person> personid_vertex) FOR GRAPH candoor {
+        start = {personid_vertex};
+        result = SELECT f FROM start:s - (friend_request:e) -> person:f
+            ORDER BY
+                f.name;
+        PRINT result;
+    }
+    INSTALL QUERY show_sent_friend_request
 
     CREATE QUERY send_friend_request(INT personid_para, INT friendid_para) FOR GRAPH candoor {
         INSERT INTO friend_request (FROM, TO) VALUES (personid_para person, friendid_para person);
