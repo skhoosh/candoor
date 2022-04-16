@@ -10,6 +10,6 @@ Setting up the tigergraph database
 7. For the "Solution Settings" page, set the "Name your Solution" to "candoor", "Set the Initial Password" to "password". You may choose to set your own "Subdomain" name, or leave it blank to let Tigergraph assign one to you.
 8. Confirm and submit.
 9. Go back to "My Solutions" page, and take a look at your solution. Click on your solution to see the details of your database. Take note of the "Domain" address listed. You will need to use this info later on.
-10. Click on the blue box icon ![image](https://user-images.githubusercontent.com/12766571/163662227-1d018455-9a98-444b-b5b6-b6de7e3d6101.png)
+10. Click on the blue box icon ![image](https://user-images.githubusercontent.com/12766571/163662412-58887c92-c81b-4ce1-866e-06665dfb0000.png)
  of your solution that reads "Solution Operations", and click "Start". It takes a few minutes for tigergraph to set up and run the database. When the database is ready, the "Applications" icon ![image](https://user-images.githubusercontent.com/12766571/163662332-0e1e3907-c973-4fca-ab6b-6940d0e8206f.png)
  next to it will turn blue. You may click on the "Applications" icon and "GraphStudio" to see the tigergraph database.
