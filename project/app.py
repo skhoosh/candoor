@@ -11,6 +11,7 @@ from datetime import datetime
 
 # import TigerGraph
 import pyTigerGraph as tg
+from tigergraph_settings import *
 # import TG functions
 # from tg_functions import createNewUser
 
@@ -41,9 +42,6 @@ login_manager.init_app(app)
 db.init_app(app)
 
 # Connect to TigerGraph DB
-hostName = "https://candoor01.i.tgcloud.io/"
-userName = "tigergraph"
-password = "password"
 conn = tg.TigerGraphConnection(
     host=hostName, username=userName, password=password)
 

@@ -1,13 +1,10 @@
+from tigergraph_settings import *
 import pyTigerGraph as tg
 import time
 
 startTime = time.time()
 
-hostName = "https://candoor.i.tgcloud.io"
-userName = "tigergraph"
-password = "password"
 conn = tg.TigerGraphConnection(host = hostName, username = userName, password = password)
-
 
 def getgraphconnection(conn, hostName, userName, password, graphName):
     conn.graphname = graphName
@@ -37,7 +34,7 @@ if createGlobalSchema:
     # create global schema
     globalSchema_gsql = '''
     USE GLOBAL
-    CREATE VERTEX person (PRIMARY_ID id INT, name STRING, email STRING, password STRING, profile_picture STRING, profile_header STRING, pronouns STRING, profile_description STRING, open_to_connect BOOL DEFAULT "true", auth_token STRING) WITH primary_id_as_attribute="true"
+    CREATE VERTEX person (PRIMARY_ID id INT, name STRING, email STRING, password STRING, profile_picture STRING, profile_header STRING DEFAULT "default_profile_pic.jpg", pronouns STRING, profile_description STRING, open_to_connect BOOL DEFAULT "true", auth_token STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX gender (PRIMARY_ID gender_identity STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX location (PRIMARY_ID country STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX speciality (PRIMARY_ID area STRING) WITH primary_id_as_attribute="true"
@@ -633,6 +630,7 @@ if installQueries:
         mentorResult = SELECT p FROM start:s - (has_expertise:e) - person:p
             WHERE
                 lower(s.area) == lower(speciality_para) AND
+                p.id != personid_para AND
                 e.willing_to_mentor == True AND
                 p.open_to_connect == True
             
@@ -674,6 +672,7 @@ if installQueries:
         menteeResult = SELECT p FROM start:s - (has_aspiration:e) - person:p
             WHERE
                 lower(s.area) == lower(speciality_para) AND
+                p.id != personid_para AND
                 e.looking_for_mentor == True AND
                 p.open_to_connect == True
             

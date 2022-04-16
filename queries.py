@@ -1,13 +1,10 @@
+from tigergraph_settings import *
 import pyTigerGraph as tg
 from datetime import datetime
 
 from uuid import uuid4
 rand_token = uuid4()
 
-
-hostName = "https://candoor.i.tgcloud.io"
-userName = "tigergraph"
-password = "password"
 conn = tg.TigerGraphConnection(host = hostName, username = userName, password = password)
 
 conn.graphname = "candoor"
@@ -17,8 +14,6 @@ authToken = authToken[0]
 
 conn = tg.TigerGraphConnection(host=hostName, graphname="candoor", username=userName, password=password,
                                apiToken=authToken)
-
-
 
 def find_mentees(personid, speciality, description, proficiency_level):
     # returns ordered by score mentee list
@@ -43,9 +38,9 @@ def find_mentees(personid, speciality, description, proficiency_level):
                 "pronouns": el["attributes"]["pronouns"],
                 "profile_description": el["attributes"]["profile_description"],
                 "open_to_connect": el["attributes"]["open_to_connect"],
-                "@speciality": el["attributes"]["@speciality"][0],
-                "@has_aspiration": el["attributes"]["@has_aspiration"][0]["attributes"],
-                "@score": el["attributes"]["@score"]}
+                "speciality": el["attributes"]["@speciality"][0],
+                "has_aspiration": el["attributes"]["@has_aspiration"][0]["attributes"],
+                "score": el["attributes"]["@score"]}
 
         menteeList.append(temp)
 
@@ -75,9 +70,9 @@ def find_mentors(personid, speciality, description, interest_level):
                 "pronouns": el["attributes"]["pronouns"],
                 "profile_description": el["attributes"]["profile_description"],
                 "open_to_connect": el["attributes"]["open_to_connect"],
-                "@speciality": el["attributes"]["@speciality"][0],
-                "@has_expertise": el["attributes"]["@has_expertise"][0]["attributes"],
-                "@score": el["attributes"]["@score"]}
+                "speciality": el["attributes"]["@speciality"][0],
+                "has_expertise": el["attributes"]["@has_expertise"][0]["attributes"],
+                "score": el["attributes"]["@score"]}
 
         mentorList.append(temp)
 
