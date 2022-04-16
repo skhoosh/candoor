@@ -45,6 +45,6 @@ Our project requires libraries, listed in the requirements.txt file. Install the
 3. Alternatively,  enter the address stated after "wsgi starting up on" into your browser.
 
 
-Thanks for taking a look at Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form][https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link]. 
+Thanks for taking a look at Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form](https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link). 
 
 Thank you :>
