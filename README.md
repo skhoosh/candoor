@@ -1,4 +1,4 @@
-# candoor
+# Candoor
 
 For this project, we used python version 3.10.0, tigergraph version 3.5.0, and performmed testing using Chrome browser.
 
@@ -44,3 +44,7 @@ Our project requires libraries, listed in the requirements.txt file. Install the
 2. When the app says it's running, open your browser of choice and head to http://localhost:5000 to access Candoor.
 3. Alternatively,  enter the address stated after "wsgi starting up on" into your browser.
 
+
+Thanks for taking a look at Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form][https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link]. 
+
+Thank you :>
