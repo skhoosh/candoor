@@ -53,9 +53,10 @@ Our project requires libraries, listed in the requirements.txt file. Install the
 1. Once the tigergraph database has been setup, run app.py.
 2. When the app says it's running, open your browser of choice and head to http://localhost:5000 to access Candoor.
 3. Alternatively,  enter the address stated after "wsgi starting up on" into your browser.
+4. You may create a new profile, or log on with "audreybot@candoor.com" with the password "password". Please note that we only created a limited number of test profiles, so searching your preferred aspiration/expertise may not populate any search resutls. Some suggested searches are "Engineering" and "Computer Science" to match with our dummy accounts.
 
 ---
 
-_Thanks for taking a look at Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form](https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link)._
+_Thanks for taking an interest in Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form](https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link)._
 
 Thank you :>
