@@ -262,6 +262,17 @@ def displayFriendRequests(personid):
 
     return friendRequestList
 
+
+def displaySentFriendRequests(personid):
+    results = conn.runInstalledQuery("show_sent_friend_request", params={"personid_vertex": personid})
+
+    sentfriendRequestList = []
+    for person in results[0]["result"]:
+        sentfriendRequestList.append({"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
+
+    return sentfriendRequestList
+
+
 def send_friendRequest(personid, friendid):
     results = conn.runInstalledQuery("send_friend_request", params={"personid_para": personid, "friendid_para": friendid})
 
@@ -323,6 +334,7 @@ unblock_person(2, 3)
 
 send_friendRequest(5, 1)
 displayFriendRequests(1)
+displaySentFriendRequests(5)
 accept_friendRequest(1, 5)
 displayFriendList(1)
 delete_friend(1, 5)
