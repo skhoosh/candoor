@@ -5,20 +5,30 @@ For this project, we used python version 3.10.0, tigergraph version 3.5.0, and p
 Download Python version 3.10 from https://www.python.org/downloads/release/python-3100/ and install it.
 
 Git clone this repository. If you have git installed on your computer, you may do this by typing this command in your terminal:
-> git clone https://github.com/skhoosh/candoor.git
+
+`git clone https://github.com/skhoosh/candoor.git`
+
 
 Navigate to the candoor folder:
-> cd .\candoor\
+
+`cd .\candoor\`
+
 
 Set-up a virtual environment to install the requirements (e.g. Use venv to create a virtual environment on Windows):
-> python -m venv venv 
+
+`python -m venv venv`
+
 
 Activate the virtual environment: 
-> .\venv\Scripts\activate
+
+`.\venv\Scripts\activate`
+
 
 Our project requires libraries, listed in the requirements.txt file. Install the required packages in the virtual environment:
-> pip install -r requirements.txt
 
+`pip install -r requirements.txt`
+
+---
 
 ### Making a tigergraph account and creating a blank tigergraph database
 1. Sign up for a free tigergraph account at https://tgcloud.io/ if you do not have one.
@@ -44,7 +54,8 @@ Our project requires libraries, listed in the requirements.txt file. Install the
 2. When the app says it's running, open your browser of choice and head to http://localhost:5000 to access Candoor.
 3. Alternatively,  enter the address stated after "wsgi starting up on" into your browser.
 
+---
 
-Thanks for taking a look at Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form](https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link). 
+_Thanks for taking a look at Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form](https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link)._
 
 Thank you :>
