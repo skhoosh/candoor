@@ -18,6 +18,10 @@
                     <p>
                         {{ profile_dict.profile_description }}
                     </p>
+                    <form action="/add_chatlist" method="POST" style="display:inline-block;">
+                        <input type="hidden" value="{{ profile_dict.id }}" name="friend_id">
+                    <button type="submit" id="sendChat" class="btn btn-dark">Send Message</button>
+                </form>
                 </td>
             </tr>
         </table>
@@ -32,7 +36,7 @@
                 <table id="tellTable" class="ask_tell_table">
                     {% for row in profile_dict.expertiseList %}
                     <tr class="ask_tell_tr">
-                        <td class="ask_tell_td"><input type="checkbox" id={{ row.num }} value="{{ row.num }}"></td>
+                        <!-- <td class="ask_tell_td"><input type="radio" name="expertiseRadio" id="{{ row.num }}" value="{{ row.num }}"></td> -->
                         <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
                         <td class="ask_tell_td">{{ row.description }}</td>
                         <td class="ask_tell_td">{{ expertise_mapping[row.proficiency_level] }}</td>
@@ -43,8 +47,8 @@
 
                 </table>
                 <br>
-                <p><b>Send connection request to {{ profile_dict.name }}</b></p>
-                <button type="button" class="btn btn-dark">Send</button>
+                <!-- <p><b>Send message to {{ profile_dict.name }}</b></p>
+                <button type="button" class="btn btn-dark">Send Message</button> -->
             </form>
         </div>
     </div>
@@ -58,7 +62,7 @@
                 <table class="ask_tell_table">
                     {% for row in profile_dict.aspirationList %}
                     <tr class="ask_tell_tr">
-                        <td class="ask_tell_td"><input type="checkbox" id={{ row.num }} value="{{ row.num }}"></td>
+                        <!-- <td class="ask_tell_td"><input type="radio" name="aspirationsRadio" id="{{ row.num }}" value="{{ row.num }}"></td> -->
                         <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
                         <td class="ask_tell_td">{{ row.description }}</td>
                         <td class="ask_tell_td">{{ row.interest_level }}</td>
@@ -68,8 +72,8 @@
 
                 </table>
                 <br>
-                <p><b>Send connection request to {{ profile_dict.name }}</b></p>
-                <button type="button" class="btn btn-dark">Send</button>
+                <!-- <p><b>Send message to {{ profile_dict.name }}</b></p>
+                <button type="button" class="btn btn-dark">Send Message</button> -->
             </form>
         </div>
     </div>
@@ -82,6 +86,8 @@
     } else {
         document.getElementById("profile_pic").src = "/static/styles/img/fluid_bg.jpg"
     }
+
+
  
 </script>
 </div>

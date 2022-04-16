@@ -17,8 +17,10 @@
                     <p>
                         {{ row.profile_description }}
                     </p>
-                    <button id="viewProfile" class="btn btn-dark">View Profile</button>
-                    <button id="sendMessage" class="btn btn-dark">Send Message</button>
+                    <form action="/unblock_person" method="POST" style="display: inline-block;">
+                        <input type="hidden" name="unblock_id" value="{{ row.id }}">
+                        <button type="submit" id="unblockPerson" class="btn btn-danger">Unblock</button>
+                    </form>
                 </td>
             </tr>
         </table>

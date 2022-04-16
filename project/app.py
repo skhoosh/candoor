@@ -621,6 +621,7 @@ def find_people_to_tell():
     proficiency_level = request.form.get("proficiency_level")
 
     mentees = find_mentees(personid, speciality, description, proficiency_level)
+    mentees = [i for i in mentees if not (i["id"] == int(personid))]
 
     return render_template("mentees.html", mentees=mentees, speciality=speciality, nav_items=nav_items)
 
@@ -646,6 +647,8 @@ def find_people_to_ask():
     interest_level = request.form.get("aspiration_level")
 
     mentors = find_mentors(personid, speciality, description, interest_level)
+    mentors = [i for i in mentors if not (i["id"] == int(personid))]
+
 
     return render_template("mentors.html", mentors=mentors, speciality=speciality, nav_items=nav_items)
 
@@ -764,6 +767,8 @@ def others(user_id):
          "nav_link": "/chat_home"},
         {"nav_label": "My Profile",
          "nav_link": "/my-profile"},
+           {"nav_label": "Blocked",
+         "nav_link": "/blocked"},
         {"nav_label": "Logout",
          "nav_link": "/logout"}
     ]
@@ -778,11 +783,17 @@ def friends_list():
     personid = current_user.tg_id
     # personid = 1
     friend_list = displayFriendList(personid)
-    friend_requests = displayFriendRequests(personid)
+    friend_requests_all = displayFriendRequests(personid)
+    blocked_list = displayBlockList(personid)
+
+
+    # Get friend requests from only those pending
+    friend_requests = [i for i in friend_requests_all if (i not in friend_list) and (i not in blocked_list)]
 
     friend_profiles = []
     for friend in friend_list:
         friend_profile = displayProfilePage(friend["id"])
+        friend_profile["id"] = friend["id"]
         friend_profiles.append(friend_profile)
 
     nav_items = [
@@ -807,6 +818,24 @@ def send_friend_request():
 
     return redirect(url_for("friends_list"))
 
+@app.route('/accept_friend', methods=['POST'])
+@login_required
+def accept_friend_request():
+    personid = current_user.tg_id
+    friendid = request.form.get("friend_id")
+    accept_friendRequest(personid, friendid)
+
+    return redirect(url_for("friends_list"))
+
+@app.route('/delete_friend', methods=['POST'])
+@login_required
+def delete_friend_from_list():
+    personid = current_user.tg_id
+    friendid = request.form.get("delete_id")
+    delete_friend(personid, friendid)
+
+    return redirect(url_for("friends_list"))
+
 
 # -------- BLOCKED ---------
 @app.route('/blocked')
@@ -824,18 +853,33 @@ def blocked_list():
     ]
 
     personid = current_user.tg_id
-    personid = 2
+    # personid = 2
     blocked_list = displayBlockList(personid)
 
     blocked_profiles = []
     for blocked in blocked_list:
         blocked_profile = displayProfilePage(blocked["id"])
+        blocked_profile["id"] = blocked["id"]
         blocked_profiles.append(blocked_profile)
 
     return render_template('blocked_list.html', blocked_profiles=blocked_profiles, nav_items=nav_items)
 
+@app.route('/block_person', methods=['POST'])
+@login_required
+def block_person_01():
+    personid = current_user.tg_id
+    blockid = request.form.get("block_id")
+    block_person(personid, blockid)
+    return redirect(url_for("blocked_list"))
 
 
+@app.route('/unblock_person', methods=['POST'])
+@login_required
+def unblock_person_01():
+    personid = current_user.tg_id
+    blockid = request.form.get("unblock_id")
+    unblock_person(personid, blockid)
+    return redirect(url_for("blocked_list"))
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

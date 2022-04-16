@@ -262,5 +262,14 @@ def displayFriendRequests(personid):
 
     return friendRequestList
 
-send_friendRequest(5, 10)
+# send_friendRequest(5, 10)
 
+
+# friend_list = displayFriendList(10)
+# friend_requests_all = displayFriendRequests(10)
+
+# print(friend_list)
+
+# print(friend_requests_all)
+
+print(displayBlockList(10))
