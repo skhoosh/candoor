@@ -42,7 +42,7 @@ Our project requires libraries, listed in the requirements.txt file. Install the
 9. Go back to "My Solutions" page, and take a look at your solution. Click on your candoor solution to bring down a tab to see the details of your database. Take note of the "Domain" address listed. You will need to use this info later on in step 11.
 10. If the Status of your solution is set to a blue circle and stopped, click on the "Solutions Operations" icon ![image](https://user-images.githubusercontent.com/12766571/163662412-58887c92-c81b-4ce1-866e-06665dfb0000.png)
  of your solution and click "Start". It takes a few minutes for tigergraph to set up and run the database. When the database is ready, the "Applications" icon ![image](https://user-images.githubusercontent.com/12766571/163662332-0e1e3907-c973-4fca-ab6b-6940d0e8206f.png) next to it will turn blue. You may click on the "Applications" icon and "GraphStudio" to see the tigergraph database.
-11. In tigergraph_settings.py, change the variable "hostName" to the domain name you found in step 9. Please keep the "https://" as part of the hostName.
+11. In tigergraph_settings.py, change the variable "hostName" to the domain name you found in step 9. Please keep the "https://" as the first part of the hostName.
  
  
 ### Setting up the tigergraph database
