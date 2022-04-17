@@ -34,7 +34,7 @@ if createGlobalSchema:
     # create global schema
     globalSchema_gsql = '''
     USE GLOBAL
-    CREATE VERTEX person (PRIMARY_ID id INT, name STRING, email STRING, password STRING, profile_picture STRING, profile_header STRING DEFAULT "default_profile_pic.jpg", pronouns STRING, profile_description STRING, open_to_connect BOOL DEFAULT "true", auth_token STRING) WITH primary_id_as_attribute="true"
+    CREATE VERTEX person (PRIMARY_ID id INT, name STRING, email STRING, password STRING, profile_picture STRING DEFAULT "default_profile_pic.jpg", profile_header STRING, pronouns STRING, profile_description STRING, open_to_connect BOOL DEFAULT "true", auth_token STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX gender (PRIMARY_ID gender_identity STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX location (PRIMARY_ID country STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX speciality (PRIMARY_ID area STRING) WITH primary_id_as_attribute="true"
