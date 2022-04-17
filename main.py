@@ -1,7 +1,7 @@
 from tigergraph_settings import *
 import pyTigerGraph as tg
 
-print("Running...")
+print("Starting...")
 
 import sqlite3
 conn = sqlite3.connect(r'project/db.sqlite')
@@ -178,7 +178,12 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY getperson_byemail
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY getmaxpersonid() FOR GRAPH candoor {
         MaxAccum<INT> @@maxpersonid;
         start = {person.*};
@@ -192,7 +197,12 @@ if installQueries:
         END;
     }
     INSTALL QUERY getmaxpersonid
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY createnewuser(INT id_para, STRING name_para, STRING email_para, STRING password_para, STRING gender_para, STRING country_para) FOR GRAPH candoor {
         # create new person vertex
         INSERT INTO person (PRIMARY_ID, name, email, password) VALUES (id_para, name_para, email_para, password_para);
@@ -214,7 +224,12 @@ if installQueries:
         INSERT INTO located_at (FROM, TO) VALUES (id_para person, country_para location);       
     }
     INSTALL QUERY createnewuser
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor    
     CREATE QUERY getProfilePage_bypersonid(INT id_para) FOR GRAPH candoor {
         ListAccum<Edge<has_aspiration>> @aspiration;
         ListAccum<Edge<has_expertise>> @expertise;
@@ -240,7 +255,12 @@ if installQueries:
         END;
     }
     INSTALL QUERY getProfilePage_bypersonid
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY update_profile(Vertex<person> personid_vertex, STRING name_para, STRING profile_picture_para, STRING profile_header_para, STRING pronouns_para, STRING profile_description_para, BOOL open_to_connect_para) FOR GRAPH candoor {
         start = {personid_vertex};
         UPDATE s FROM start:s
@@ -254,14 +274,24 @@ if installQueries:
 
     }
     INSTALL QUERY update_profile
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor    
     CREATE QUERY add_aspiration(INT personid_para, STRING speciality_para, INT num_para, STRING description_para, INT interest_level_para, BOOL looking_for_mentor_para) FOR GRAPH candoor {
         # add a new has_aspiration edge and add/update speciality vertex
         INSERT INTO speciality (PRIMARY_ID) VALUES (speciality_para);
         INSERT INTO has_aspiration (FROM, TO, num, description, interest_level, looking_for_mentor) VALUES (personid_para person, speciality_para speciality, num_para, description_para, interest_level_para, looking_for_mentor_para);
     }
     INSTALL QUERY add_aspiration
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY update_aspiration(Vertex<person> personid_vertex, STRING speciality_para, INT num_para, STRING description_para, INT interest_level_para, BOOL looking_for_mentor_para) FOR GRAPH candoor {
         # update has_aspiration edge and add/update speciality vertex
         
@@ -287,14 +317,24 @@ if installQueries:
                 END;
     }
     INSTALL QUERY update_aspiration
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor    
     CREATE QUERY delete_aspiration(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
         start = {personid_vertex};
         DELETE e FROM start:s - (has_aspiration:e) - speciality:sp
             WHERE e.num == num_para;
     }
     INSTALL QUERY delete_aspiration
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY reorder_aspiration(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
         start = {personid_vertex};
 
@@ -305,7 +345,12 @@ if installQueries:
                 END;
     }
     INSTALL QUERY reorder_aspiration 
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY clean_speciality(Vertex<speciality> specialityarea_vertex) FOR GRAPH candoor {
         # delete speciality vertex if no longer in use
 
@@ -322,14 +367,24 @@ if installQueries:
                 END;
     }
     INSTALL QUERY clean_speciality
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY add_expertise(INT personid_para, STRING speciality_para, INT num_para, STRING description_para, INT proficiency_level_para, BOOL willing_to_mentor_para) FOR GRAPH candoor {
         # add a new has_expertise edge and add/update speciality vertex
         INSERT INTO speciality (PRIMARY_ID) VALUES (speciality_para);
         INSERT INTO has_expertise (FROM, TO, num, description, proficiency_level, willing_to_mentor) VALUES (personid_para person, speciality_para speciality, num_para, description_para, proficiency_level_para, willing_to_mentor_para);
     }
     INSTALL QUERY add_expertise
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY update_expertise(Vertex<person> personid_vertex, STRING speciality_para, INT num_para, STRING description_para, INT proficiency_level_para, BOOL willing_to_mentor_para) FOR GRAPH candoor {
         # update has_expertise edge and add/update speciality vertex
         
@@ -355,14 +410,24 @@ if installQueries:
                 END;
     }
     INSTALL QUERY update_expertise
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY delete_expertise(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
         start = {personid_vertex};          
         DELETE e FROM start:s - (has_expertise:e) - speciality:sp
             WHERE e.num == num_para;
     }
     INSTALL QUERY delete_expertise
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY reorder_expertise(Vertex<person> personid_vertex, INT num_para) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT s FROM start:s - (has_expertise:e) - speciality:sp
@@ -372,7 +437,12 @@ if installQueries:
                 END;
     }
     INSTALL QUERY reorder_expertise
-        
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY getSettingsPage_bypersonid(Vertex<person> personid_vertex) FOR GRAPH candoor {
         MapAccum<STRING, STRING> @@settingsPage;
         
@@ -392,12 +462,15 @@ if installQueries:
         PRINT @@settingsPage AS result;
     }
     INSTALL QUERY getSettingsPage_bypersonid
-    
-    CREATE QUERY update_userParticulars(Vertex<person> personid_vertex, STRING gender_para, STRING location_para) FOR GRAPH candoor {
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
+    CREATE QUERY update_userParticulars(Vertex<person> personid_vertex, STRING gender_para, STRING location_para) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT s FROM start:s - ((located_at|has_gender):e) - (location|gender):v
-
             ACCUM
                 DELETE (e)
             
@@ -406,10 +479,14 @@ if installQueries:
                 INSERT INTO located_at (FROM, TO) VALUES (personid_vertex, location_para location);
                 INSERT INTO gender (PRIMARY_ID) VALUES (gender_para);
                 INSERT INTO has_gender (FROM, TO) VALUES (personid_vertex, gender_para gender);
-
     }
     INSTALL QUERY update_userParticulars
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY update_password(Vertex<person> personid_vertex, STRING password_para) FOR GRAPH candoor {
         start = {personid_vertex};
         UPDATE s FROM start:s
@@ -417,7 +494,12 @@ if installQueries:
             s.password = password_para;
     }
     INSTALL QUERY update_password
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY getBlockList(Vertex<person> personid_vertex) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT b FROM start:s - (block:e) -> person:b
@@ -426,12 +508,22 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY getBlockList
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY add_block(INT personid_para, INT blockid_para) FOR GRAPH candoor {
         INSERT INTO block (FROM, TO) VALUES (personid_para person, blockid_para person);
     }
     INSTALL QUERY add_block
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY delete_block(Vertex<person> personid_vertex, INT blockid_para) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT b FROM start:s - (block:e) -> person:b
@@ -441,7 +533,12 @@ if installQueries:
                 DELETE (e);
     }
     INSTALL QUERY delete_block
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY getFriendList(Vertex<person> personid_vertex) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT f FROM start:s - (friend:e) - person:f
@@ -450,7 +547,12 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY getFriendList
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY delete_friend(Vertex<person> personid_vertex, INT friendid_para) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT f FROM start:s - (friend:e) - person:f
@@ -460,7 +562,12 @@ if installQueries:
                 DELETE (e);                
     }
     INSTALL QUERY delete_friend
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY show_friend_request(Vertex<person> personid_vertex) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT f FROM start:s - (reverse_friend_request:e) -> person:f
@@ -469,7 +576,12 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY show_friend_request
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY show_sent_friend_request(Vertex<person> personid_vertex) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT f FROM start:s - (friend_request:e) -> person:f
@@ -478,12 +590,22 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY show_sent_friend_request
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY send_friend_request(INT personid_para, INT friendid_para) FOR GRAPH candoor {
         INSERT INTO friend_request (FROM, TO) VALUES (personid_para person, friendid_para person);
     }
     INSTALL QUERY send_friend_request
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY accept_friend_request(Vertex<person> personid_vertex, INT friendid_para) FOR GRAPH candoor {
         INSERT INTO friend (FROM, TO) VALUES (personid_vertex, friendid_para person);
         start = {personid_vertex};
@@ -494,7 +616,12 @@ if installQueries:
                 DELETE (e);
     }
     INSTALL QUERY accept_friend_request
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY show_messages(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor {
         SetAccum<INT> @sender;
         
@@ -516,7 +643,12 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY show_messages
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY get_chat_list(Vertex<person> personid_vertex) FOR GRAPH candoor {
         start = {personid_vertex};
         result = SELECT p FROM start:s - ((send_message>|reverse_receive_message>):e1) - message:m - ((receive_message>|reverse_send_message>):e2) - person:p
@@ -526,7 +658,12 @@ if installQueries:
         PRINT result;
     }
     INSTALL QUERY get_chat_list
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY send_a_message(INT personid_para, INT otherpersonid_para, STRING text_para, STRING time_para) FOR GRAPH candoor {
         STRING uniqueMessageId = "p" + to_string(personid_para) + " p" + to_string(otherpersonid_para) + " " + time_para;
         INSERT INTO message (PRIMARY_ID, text, time) VALUES (uniqueMessageId, text_para, to_datetime(time_para));
@@ -534,7 +671,12 @@ if installQueries:
         INSERT INTO receive_message (FROM, TO) VALUES (uniqueMessageId message, otherpersonid_para person);
     }
     INSTALL QUERY send_a_message
-    
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
+
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY find_connectiondegree(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor RETURNS (INT) {
         MinAccum<INT> @@connection = 4;
 
@@ -568,7 +710,12 @@ if installQueries:
         RETURN @@connection;     
     }
     INSTALL QUERY find_connectiondegree
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY find_twoway_blockdegreeremovedscore(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor RETURNS (INT) {
         # does not check 1st degree two way block as 1st degree blocks should/will be removed completely from interaction
         # a block of 0 is the best. The higher the block score the worse the person will be ranked
@@ -598,7 +745,12 @@ if installQueries:
         RETURN @@twowayblockdegree;     
     }
     INSTALL QUERY find_twoway_blockdegreeremovedscore
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY match_country(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor RETURNS (INT) {
         # returns 1 for match, 0 for no match
         STRING user_country;
@@ -625,7 +777,12 @@ if installQueries:
         RETURN match;     
     }
     INSTALL QUERY match_country
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY match_gender(INT personid_para, INT otherpersonid_para) FOR GRAPH candoor RETURNS (INT) {
         # returns 1 for match, 0 for no match
         STRING user_gender;
@@ -652,7 +809,12 @@ if installQueries:
         RETURN match;     
     }
     INSTALL QUERY match_gender
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY find_mentors(INT personid_para, STRING speciality_para, INT interest_level_para) FOR GRAPH candoor {
         SetAccum<INT> @@blockids;
         SetAccum<Edge<has_expertise>> @has_expertise;
@@ -694,7 +856,12 @@ if installQueries:
         PRINT mentorResult2 AS result;
     }
     INSTALL QUERY find_mentors
+    '''
+    results = conn.gsql(queries_gsql)
+    print(results)
 
+    queries_gsql = '''
+    USE GRAPH candoor
     CREATE QUERY find_mentees(INT personid_para, STRING speciality_para, INT proficiency_level_para) FOR GRAPH candoor {
         SetAccum<INT> @@blockids;
         SetAccum<Edge<has_aspiration>> @has_aspiration;
@@ -736,21 +903,10 @@ if installQueries:
         PRINT menteeResult2 AS result;
     }
     INSTALL QUERY find_mentees
-'''
-
-
+    '''
     results = conn.gsql(queries_gsql)
     print(results)
 
 
 
-endTime = time.time()
-print("time taken (min)")
-print((endTime - startTime)/60)
-
-
-# useful commands
-# results = conn.gsql("USE GLOBAL DROP ALL")
-# results = conn.gsql("USE GRAPH candoor SHOW JOB *")
-# results = conn.gsql("DROP JOB ALL")
-# print(results)
+print("Finished!")
