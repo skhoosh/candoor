@@ -1,6 +1,7 @@
 from tigergraph_settings import *
 import pyTigerGraph as tg
-import time
+
+print("Running...")
 
 import sqlite3
 conn = sqlite3.connect(r'project/db.sqlite')
@@ -25,8 +26,6 @@ c.execute(
 )
 conn.commit()
 conn.close()
-
-startTime = time.time()
 
 conn = tg.TigerGraphConnection(host = hostName, username = userName, password = password)
 
