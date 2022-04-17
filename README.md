@@ -14,7 +14,7 @@ Navigate to the candoor folder:
 `cd .\candoor\`
 
 
-Set-up a virtual environment to install the requirements (e.g. Use venv to create a virtual environment on Windows):
+If you want to, set-up a virtual environment to install the requirements (e.g. Use venv to create a virtual environment on Windows):
 
 `python -m venv venv`
 
