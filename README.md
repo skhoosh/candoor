@@ -46,7 +46,7 @@ Our project requires libraries, listed in the requirements.txt file. Install the
  
  
 ### Setting up the tigergraph database
- 1. Run main.py. This creates the graph schema, and installs all of the tigergraph queries. Please be patient, in our tests, it took us about 40mins for the code to run.  as tigergraph takes time to install the queries so they can be run super fast later on.
+ 1. Run main.py with the command `python main.py`. This creates the graph schema, and installs all of the tigergraph queries. Please be patient, in our tests, it took us about 40mins for the code to run.  as tigergraph takes time to install the queries so they can be run super fast later on.
 
 ### Getting started with Candoor!
 1. Once the tigergraph database has been setup, run app.py.
