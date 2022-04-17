@@ -1,6 +1,6 @@
 # Candoor
 
-For this project, we used python version 3.10.0, tigergraph version 3.5.0, and tested using Chrome browser.
+For this project, we used python version 3.10.0 on Windows, TigerGraph version 3.5.0, and tested using Chrome browser.
 
 Download Python version 3.10 from https://www.python.org/downloads/release/python-3100/ and install it.
 
