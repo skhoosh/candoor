@@ -5,7 +5,13 @@ c = conn.cursor()
 
 c.execute(
     '''
-    CREATE TABLE "user" 
+    DROP TABLE IF EXISTS user;
+    '''
+)
+
+c.execute(
+    '''
+    CREATE TABLE user 
     ( `id` INTEGER NOT NULL, 
     `email` VARCHAR ( 100 ) UNIQUE, 
     `password` VARCHAR ( 100 ), 
