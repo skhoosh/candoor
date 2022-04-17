@@ -35,7 +35,7 @@ Our project requires libraries, listed in the requirements.txt file. Install the
 2. When you are signed in to your tigergraph cloud account, click on the "My Solutions" tab on the left hand side.
 3. On the right hand side, click on the blue "Create Solution" button to create a new tigergraph database.
 4. We used tigergraph version 3.5.0. This option may not be available, go ahead and choose the closest version.
-5. For the starter kit, choose the blank template and then click next.
+5. For the starter kit, choose the blank template (Blank v3.5.1) and then click next.
 6. For the "Instance Settings" page, you may choose your desired cloud platform and preferred region. It is also fine to leave the settings as default, and does not impact performance.
 7. For the "Solution Settings" page, set the "Name your Solution" to "candoor", "Set the Initial Password" to "password". You may choose to set your own "Subdomain" name, or leave it blank to let Tigergraph assign one to you.
 8. Confirm and submit.
