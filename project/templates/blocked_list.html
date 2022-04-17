@@ -2,7 +2,13 @@
 
 {% block content %}
 <div class="container-fluid">
+    {% if blocked_profiles %}
     <h1>Manage blocked profiles</h1>
+    {% else %}
+    <div class="about_me">
+    <h1>You have not blocked anyone</h1>
+    </div>
+    {% endif %}
 
     {% for row in blocked_profiles %}
 

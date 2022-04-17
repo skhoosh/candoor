@@ -1,10 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-Thanks for joining the community!
-</h1>
-<h2 class="subtitle">
-<a href="/login">Login</a> and start connecting with people now. 
-</h2>
+<div class="row flex-grow-1">
+
+    <div class="col-7 withbg">
+        <div class="headingContainer">
+            <img src="{{ url_for('static',filename='styles/img/Candoor_logo_blue_01.svg') }}" alt="Candoor Logo"
+                class="logo">
+        </div>
+
+    </div>
+
+    <div class="col-5">
+        <div class="auth-form">
+            <h1 class="title">
+                Thanks for joining the community!
+            </h1>
+            <br>
+            <h2 class="subtitle">
+                <a href="/login">Login</a> and start connecting with people now.
+            </h2>
+
+        </div>
+    </div>
+</div>
 {% endblock %}
+

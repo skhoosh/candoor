@@ -1,3 +1,3 @@
-hostName = "https://candoor.i.tgcloud.io"
+hostName = "https://candoor01.i.tgcloud.io"
 userName = "tigergraph"
 password = "password"

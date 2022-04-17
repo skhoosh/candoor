@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append(os.path.dirname(os.getcwd()))
 from flask import Flask, render_template, request, redirect, url_for, flash
 # from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -13,10 +15,10 @@ from datetime import datetime
 import pyTigerGraph as tg
 from tigergraph_settings import *
 # import TG functions
+from queries import *
 # from tg_functions import createNewUser
 
 # create data for input into tg
-import uuid
 from datetime import date
 
 # init SQLAlchemy so we can use it later in our models
@@ -32,7 +34,6 @@ app.config['SECRET_KEY'] = 'secret-key-goes-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 
 login_manager = LoginManager()
@@ -53,283 +54,43 @@ authToken = authToken[0]
 conn = tg.TigerGraphConnection(host=hostName, graphname="candoor",
                                username=userName, password=password, apiToken=authToken)
 
-# -------- TG FUNCTIONS -----------
-
-
-def createNewUser(name, email, password, gender, country):
-    # check if user exists in system
-    checkUser = conn.runInstalledQuery(
-        "getperson_byemail", params={"email_para": email})
-
-    if len(checkUser[0]["result"]) == 1:
-        # user found
-        return False
-    else:
-        maxid = conn.runInstalledQuery("getmaxpersonid")[0]["result"]
-        conn.runInstalledQuery("createnewuser", params={"id_para": maxid + 1, "name_para": name,
-                               "email_para": email, "password_para": password, "gender_para": gender, "country_para": country})
-
-
-def displayProfilePage(personid):
-    # personid needs to exist in database
-    results = conn.runInstalledQuery(
-        "getProfilePage_bypersonid", params={"id_para": personid})
-
-    name = results[0]["result"][0]["attributes"]["name"]
-    profile_picture = results[0]["result"][0]["attributes"]["profile_picture"]
-    profile_header = results[0]["result"][0]["attributes"]["profile_header"]
-    pronouns = results[0]["result"][0]["attributes"]["pronouns"]
-    profile_description = results[0]["result"][0]["attributes"]["profile_description"]
-    open_to_connect = results[0]["result"][0]["attributes"]["open_to_connect"]
-
-    if "@expertise" in results[0]["result"][0]["attributes"]:
-        expertiseList = results[0]["result"][0]["attributes"]["@expertise"]
-        expertiseList = [expertise["attributes"] | {
-            "speciality": expertise["to_id"]} for expertise in expertiseList]
-        expertiseList = sorted(expertiseList, key=lambda dict: dict["num"])
-        # each element in expertiseList has keys "num", "description", "proficiency_level", "willing_to_mentor", "speciality"
-    else:
-        expertiseList = []
-
-    if "@aspiration" in results[0]["result"][0]["attributes"]:
-        aspirationList = results[0]["result"][0]["attributes"]["@aspiration"]
-        aspirationList = [aspiration["attributes"] | {
-            "speciality": aspiration["to_id"]} for aspiration in aspirationList]
-        aspirationList = sorted(aspirationList, key=lambda dict: dict["num"])
-        # each element in aspirationList has keys "num", "description", "interest_level", "looking_for_mentor", "speciality"
-    else:
-        aspirationList = []
-
-    profile_page_dict = {"name": name,
-                         "profile_picture": profile_picture,
-                         "profile_header": profile_header,
-                         "pronouns": pronouns,
-                         "profile_description": profile_description,
-                         "open_to_connect": open_to_connect,
-                         "expertiseList": expertiseList,
-                         "aspirationList": aspirationList}
-
-    return profile_page_dict
-
-
-def add_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor):
-    params = {"personid_para": personid,
-              "speciality_para": speciality,
-              "num_para": num,
-              "description_para": description,
-              "proficiency_level_para": proficiency_level,
-              "willing_to_mentor_para": willing_to_mentor}
-    results = conn.runInstalledQuery("add_expertise", params=params)
-
-
-def update_expertise(personid, speciality, num, description, proficiency_level, willing_to_mentor):
-    params = {"personid_vertex": personid,
-              "speciality_para": speciality,
-              "num_para": num,
-              "description_para": description,
-              "proficiency_level_para": proficiency_level,
-              "willing_to_mentor_para": willing_to_mentor}
-    results = conn.runInstalledQuery("update_expertise", params=params)
-
-
-def delete_expertise(personid, speciality, num):
-    params = {"personid_vertex": personid,
-              "num_para": num}
-    results = conn.runInstalledQuery("delete_expertise", params=params)
-    results = conn.runInstalledQuery("reorder_expertise", params=params)
-    results = conn.runInstalledQuery("clean_speciality", params={
-                                     "specialityarea_vertex": speciality})
-
-
-def add_aspiration(personid, speciality, num, description, interest_level, looking_for_mentor):
-    params = {"personid_para": personid,
-              "speciality_para": speciality,
-              "num_para": num,
-              "description_para": description,
-              "interest_level_para": interest_level,
-              "looking_for_mentor_para": looking_for_mentor}
-    results = conn.runInstalledQuery("add_aspiration", params=params)
-
-
-def update_aspiration(personid, speciality, num, description, interest_level, looking_for_mentor):
-    params = {"personid_vertex": personid,
-              "speciality_para": speciality,
-              "num_para": num,
-              "description_para": description,
-              "interest_level_para": interest_level,
-              "looking_for_mentor_para": looking_for_mentor}
-    results = conn.runInstalledQuery("update_aspiration", params=params)
-
-
-def delete_aspiration(personid, speciality, num):
-    params = {"personid_vertex": personid,
-              "num_para": num}
-    results = conn.runInstalledQuery("delete_aspiration", params=params)
-    results = conn.runInstalledQuery("reorder_aspiration", params=params)
-    results = conn.runInstalledQuery("clean_speciality", params={
-                                     "specialityarea_vertex": speciality})
-
-
-def displayFriendList(personid):
-    results = conn.runInstalledQuery("getFriendList", params={
-                                     "personid_vertex": personid})
-
-    friendList = []
-    for person in results[0]["result"]:
-        friendList.append(
-            {"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
-
-    return friendList
-
-
-def displayBlockList(personid):
-    results = conn.runInstalledQuery(
-        "getBlockList", params={"personid_vertex": personid})
-
-    blockList = []
-    for person in results[0]["result"]:
-        blockList.append(
-            {"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
-
-    return blockList
-
-
-def displayChatList(personid):
-    results = conn.runInstalledQuery("get_chat_list", params={"personid_vertex": personid})
-
-    chatList = []
-    for person in results[0]["result"]:
-        chatList.append({"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
-
-    return chatList
-
-def getMessages(personid, otherpersonid):
-    results = conn.runInstalledQuery("show_messages", params={"personid_para": personid, "otherpersonid_para": otherpersonid})
-
-    messageList = []
-    for message in results[0]["result"]:
-        messageList.append({"sender": message["attributes"]["@sender"][0], "text": message["attributes"]["text"], "time": message["attributes"]["time"]})
-
-    return messageList
-
-def sendMessage(personid, otherpersonid, text, time):
-    results = conn.runInstalledQuery("send_a_message", params={"personid_para": personid, "otherpersonid_para": otherpersonid, "text_para": text, "time_para": str(time)})
-
-
-def update_profile(personid, name, profile_picture, profile_header, pronouns, profile_description, open_to_connect):
-    params = {"personid_vertex": personid,
-              "name_para": name,
-              "profile_picture_para": profile_picture,
-              "profile_header_para": profile_header,
-              "pronouns_para": pronouns,
-              "profile_description_para": profile_description,
-              "open_to_connect_para": open_to_connect}
-    results = conn.runInstalledQuery("update_profile", params=params)
-
-def find_mentees(personid, speciality, description, proficiency_level):
-    # returns ordered by score mentee list
-    # does not make use of description yet, but may in the future
-    # each result has keys as listed in temp.
-    # note that the key @has_aspiration is a dict with keys ["num", "description", "interest_level", "looking_for_mentor"]
-
-    params = {"personid_para": personid,
-              "speciality_para": speciality,
-              "proficiency_level_para": proficiency_level}
-    results = conn.runInstalledQuery("find_mentees", params=params)
-
-    menteeList = []
-
-    for el in results[0]["result"]:
-        # return only relevent parameters (for example, we don't want to return the password)
-        temp = {"id": el["attributes"]["id"],
-                "name": el["attributes"]["name"],
-                "email": el["attributes"]["email"],
-                "profile_picture": el["attributes"]["profile_picture"],
-                "profile_header": el["attributes"]["profile_header"],
-                "pronouns": el["attributes"]["pronouns"],
-                "profile_description": el["attributes"]["profile_description"],
-                "open_to_connect": el["attributes"]["open_to_connect"],
-                "speciality": el["attributes"]["@speciality"][0],
-                "has_aspiration": el["attributes"]["@has_aspiration"][0]["attributes"],
-                "score": el["attributes"]["@score"]}
-
-        menteeList.append(temp)
-
-    return menteeList
-
-def find_mentors(personid, speciality, description, interest_level):
-    # returns ordered by score mentor list
-    # does not make use of description yet, but may in the future
-    # each result has keys as listed in temp.
-    # note that the key @has_expertise is a dict with keys ["num", "description", "proficiency_level", "willing_to_mentor"]
-
-    params = {"personid_para": personid,
-              "speciality_para": speciality,
-              "interest_level_para": interest_level}
-    results = conn.runInstalledQuery("find_mentors", params=params)
-
-    mentorList = []
-
-    for el in results[0]["result"]:
-        # return only relevent parameters (for example, we don't want to return the password)
-        temp = {"id": el["attributes"]["id"],
-                "name": el["attributes"]["name"],
-                "email": el["attributes"]["email"],
-                "profile_picture": el["attributes"]["profile_picture"],
-                "profile_header": el["attributes"]["profile_header"],
-                "pronouns": el["attributes"]["pronouns"],
-                "profile_description": el["attributes"]["profile_description"],
-                "open_to_connect": el["attributes"]["open_to_connect"],
-                "speciality": el["attributes"]["@speciality"][0],
-                "has_expertise": el["attributes"]["@has_expertise"][0]["attributes"],
-                "score": el["attributes"]["@score"]}
-
-        mentorList.append(temp)
-
-    return mentorList
-
-def getConnectionDegree(personid, otherpersonid):
-    results = conn.runInstalledQuery("find_connectiondegree", params={"personid_para": personid, "otherpersonid_para": otherpersonid})
-
-    return results[0]["@@connection"]
-
-def delete_friend(personid, friendid):
-    results = conn.runInstalledQuery("delete_friend", params={"personid_vertex": personid, "friendid_para": friendid})
-
-
-def displayFriendRequests(personid):
-    results = conn.runInstalledQuery("show_friend_request", params={"personid_vertex": personid})
-
-    friendRequestList = []
-    for person in results[0]["result"]:
-        friendRequestList.append({"name": person["attributes"]["name"], "id": person["attributes"]["id"]})
-
-    return friendRequestList
-
-def send_friendRequest(personid, friendid):
-    results = conn.runInstalledQuery("send_friend_request", params={"personid_para": personid, "friendid_para": friendid})
-
-def accept_friendRequest(personid, friendid):
-    results = conn.runInstalledQuery("accept_friend_request", params={"personid_vertex": personid, "friendid_para": friendid})
-
-def block_person(personid, blockid):
-    results = conn.runInstalledQuery("add_block", params={"personid_para": personid, "blockid_para": blockid})
-
-def unblock_person(personid, blockid):
-    results = conn.runInstalledQuery("delete_block", params={"personid_vertex": personid, "blockid_para": blockid})
-
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+nav_items_authenticated = [
+    {"nav_label": "Me",
+     "nav_link": "/my-profile"},
+    {"nav_label": "Messages",
+     "nav_link": "/chat_home"},
+    {"nav_label": "Friends",
+     "nav_link": "/friends"},
+    {"nav_label": "Blocked",
+     "nav_link": "/blocked"},
+    {"nav_label": "Logout",
+     "nav_link": "/logout"}
+]
+
+
+def toOrdinalNum(n):
+    return str(n) + {1: 'st', 2: 'nd', 3: 'rd'}.get(4 if 10 <= n % 100 < 20 else n % 10, "th")
+
+
+# -------- MAIN APP ---------
+@app.route('/')
+def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('my_profile'))
+    else:
+        return redirect(url_for("login"))
+
+
 # -------- AUTHENTICATION ---------
 @app.route('/login')
 def login():
     nav_items = [
-        {"nav_label": "About",
-         "nav_link": "#"},
         {"nav_label": "Sign Up",
          "nav_link": "/signup"}
     ]
@@ -389,6 +150,10 @@ def signup_post():
         flash('Email address already exists')
         return(redirect(url_for('signup')))
 
+    # add user to tg database
+    createNewUser(name, email, password, gender, country)
+    # conn.upsertVertex('person', user_id, user_attributes)
+
     # create a new user with form data. Hash password.
     new_user = User(tg_id=user_id, email=email, name=name,
                     password=password)
@@ -396,17 +161,19 @@ def signup_post():
     db.session.add(new_user)
     db.session.commit()
 
-    # add user to tg database
-    createNewUser(name, email, password, gender, country)
-    # conn.upsertVertex('person', user_id, user_attributes)
-
     # print(req)
     return redirect(url_for('signup_success'))
 
 
 @app.route('/signupsuccess')
 def signup_success():
-    return render_template('signup_success.html')
+    nav_items = [
+        {"nav_label": "Login",
+         "nav_link": "/login"},
+        {"nav_label": "Sign Up",
+            "nav_link": "/signup"}
+    ]
+    return render_template('signup_success.html', nav_items=nav_items)
 
 
 @app.route('/logout')
@@ -414,22 +181,6 @@ def signup_success():
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-
-# -------- MAIN APP ---------
-@app.route('/')
-def index():
-    nav_items = [
-        {"nav_label": "About",
-         "nav_link": "#"},
-        {"nav_label": "Messages",
-         "nav_link": "/chat_home"},
-        {"nav_label": "My Profile",
-         "nav_link": "/my-profile"},
-        {"nav_label": "Logout",
-         "nav_link": "/logout"}
-    ]
-    return render_template('index.html', nav_items=nav_items)
 
 
 # -------- My PROFILE ---------
@@ -456,23 +207,12 @@ def my_profile():
         3: "How can I build my career and be an expert at this?"
     }
 
-    nav_items = [
-        {"nav_label": "Me",
-         "nav_link": "/my-profile"},
-        {"nav_label": "Messages",
-         "nav_link": "/chat_home"},
-        {"nav_label": "Friends",
-         "nav_link": "/friends"},
-        {"nav_label": "Blocked",
-         "nav_link": "/blocked"},
-        {"nav_label": "Logout",
-         "nav_link": "/logout"}
-    ]
-
     # , tg_id=current_user.tg_id
-    return render_template('my_profile.html', nav_items=nav_items, my_profile_dict=my_profile_dict, expertise_mapping=expertise_mapping, aspiration_mapping=aspiration_mapping)
+    return render_template('my_profile.html', nav_items=nav_items_authenticated, my_profile_dict=my_profile_dict, expertise_mapping=expertise_mapping, aspiration_mapping=aspiration_mapping)
 
 # -------- EDIT MY PROFILE --------
+
+
 @app.route('/edit_about_me', methods=['POST'])
 @login_required
 def edit_about_me():
@@ -481,16 +221,18 @@ def edit_about_me():
     pronouns = request.form.get("pronouns")
     aboutme = request.form.get("aboutme")
     personid = current_user.tg_id
-    if request.files["profilePicture"]: 
+    if request.files["profilePicture"]:
         profilePicture = request.files["profilePicture"]
         profilePictureFilename = f"{personid}_pp.jpg"
-        full_filename = os.path.join(app.config['UPLOAD_FOLDER'], profilePictureFilename)
+        full_filename = os.path.join(
+            app.config['UPLOAD_FOLDER'], profilePictureFilename)
         profilePicture.save(full_filename)
-    else: 
-        profilePictureFilename=request.form.get("hiddenProfilePicture")
+    else:
+        profilePictureFilename = request.form.get("hiddenProfilePicture")
 
-    # Write to TG 
-    update_profile(personid, displayName, profilePictureFilename, headline, pronouns, aboutme, True)
+    # Write to TG
+    update_profile(personid, displayName, profilePictureFilename,
+                   headline, pronouns, aboutme, True)
 
     return redirect(url_for("my_profile"))
 
@@ -559,8 +301,8 @@ def add_tell_me():
     looking_for_mentor = True
 
     # Replace with code to write to TG
-    add_aspiration(f"{personid}", f"{speciality}", num,
-                   f"{description}", f"{interest_level}", f"{looking_for_mentor}")
+    add_aspiration(personid, speciality, num,
+                   description, interest_level, looking_for_mentor)
 
     return redirect(url_for("my_profile"))
 
@@ -597,47 +339,26 @@ def delete_tell_me():
     return redirect(url_for("my_profile"))
 
 # -------- FIND PEOPLE RESULTS ---------
+
+
 @app.route('/find_people_to_tell', methods=['POST'])
 @login_required
 def find_people_to_tell():
-    nav_items = [
-        {"nav_label": "Me",
-         "nav_link": "/my-profile"},
-        {"nav_label": "Messages",
-         "nav_link": "/chat_home"},
-        {"nav_label": "Friends",
-         "nav_link": "/friends"},
-        {"nav_label": "Blocked",
-         "nav_link": "/blocked"},
-        {"nav_label": "Logout",
-         "nav_link": "/logout"}
-    ]
-
     personid = current_user.tg_id
     speciality = request.form.get("expertise_speciality")
     description = request.form.get("expertise_description")
     proficiency_level = request.form.get("proficiency_level")
 
-    mentees = find_mentees(personid, speciality, description, proficiency_level)
+    mentees = find_mentees(personid, speciality,
+                           description, proficiency_level)
     mentees = [i for i in mentees if not (i["id"] == int(personid))]
 
-    return render_template("mentees.html", mentees=mentees, speciality=speciality, nav_items=nav_items)
+    return render_template("mentees.html", mentees=mentees, speciality=speciality, nav_items=nav_items_authenticated)
+
 
 @app.route('/find_people_to_ask', methods=['POST'])
 @login_required
 def find_people_to_ask():
-    nav_items = [
-        {"nav_label": "Me",
-         "nav_link": "/my-profile"},
-        {"nav_label": "Messages",
-         "nav_link": "/chat_home"},
-        {"nav_label": "Friends",
-         "nav_link": "/friends"},
-        {"nav_label": "Blocked",
-         "nav_link": "/blocked"},
-        {"nav_label": "Logout",
-         "nav_link": "/logout"}
-    ]
 
     personid = current_user.tg_id
     speciality = request.form.get("aspiration_speciality")
@@ -647,28 +368,7 @@ def find_people_to_ask():
     mentors = find_mentors(personid, speciality, description, interest_level)
     mentors = [i for i in mentors if not (i["id"] == int(personid))]
 
-
-    return render_template("mentors.html", mentors=mentors, speciality=speciality, nav_items=nav_items)
-
-
-@app.route('/find_people')
-@login_required
-def find_people():
-    people_list = [
-        {
-            "name": "Eva Bot",
-            "headline": "I'm a cute doggo",
-            "about_me": "I'm a cute and clever doggo. I like to play soccer and balls make me go crazyyyy."
-        },
-        {
-            "name": "Clover Bot",
-            "headline": "13/10 good doge",
-            "about_me": "I'm cute and fluffy. But I can be quite fierce sometimes. Don't cross me. "
-        },
-    ]
-
-    return render_template('find_people.html', people_list=people_list)
-
+    return render_template("mentors.html", mentors=mentors, speciality=speciality, nav_items=nav_items_authenticated)
 
 
 # -------- CHAT ---------
@@ -676,12 +376,6 @@ def find_people():
 @login_required
 def chat_home():
     personid = current_user.tg_id
-    # personid = 1
-    # friends_list = [
-    #     {"name": "Mary Jane Tan", "id":1},
-    #     {"name": "John Teo", "id": 2},
-    #     {"name": "Jane Brown", "id": 3}
-    # ]
     friends_list = displayChatList(personid)
     name_map = {int(personid): current_user.name}
 
@@ -689,47 +383,35 @@ def chat_home():
         name_map[friend["id"]] = friend["name"]
 
     friend_id = request.args.get('friend_id')
-    # room = request.args.get('room')
-    if friend_id: 
+
+    if friend_id:
         messages = getMessages(personid, friend_id)
     else:
         messages = []
 
-    nav_items = [
-        {"nav_label": "Me",
-         "nav_link": "/my-profile"},
-        {"nav_label": "Messages",
-         "nav_link": "/chat_home"},
-        {"nav_label": "Friends",
-         "nav_link": "/friends"},
-        {"nav_label": "Blocked",
-         "nav_link": "/blocked"},
-        {"nav_label": "Logout",
-         "nav_link": "/logout"}
-    ]
-
     room = request.args.get('room')
 
-    return render_template('chat_home_test.html', nav_items=nav_items, friends_list=friends_list, name_map=name_map, username=current_user.name, friend_id=friend_id, room=room, personid=personid, messages=messages)
+    return render_template('chat.html', nav_items=nav_items_authenticated, friends_list=friends_list, name_map=name_map, username=current_user.name, friend_id=friend_id, room=room, personid=personid, messages=messages)
+
+# SEND MESSAGE HEREEEE
+
 
 @app.route('/add_chatlist', methods=['POST'])
 @login_required
 def add_chatlist():
     personid = current_user.tg_id
     friendid = request.form.get("friend_id")
-    text = "Hello"
+    text = request.form.get("messageText")
     sendMessage(personid, friendid, text, datetime.now())
 
     return redirect(url_for("chat_home"))
 
 
-
-
-
 @socketio.on('send_message')
 def handle_send_message_event(data):
-    # Save message to TG 
-    sendMessage(data["sender"], data["receiver"], data["message"], datetime.now())
+    # Save message to TG
+    sendMessage(data["sender"], data["receiver"],
+                data["message"], datetime.now())
     # Emit message to Client
     socketio.emit('receive_message', data, room=data['room'])
 
@@ -740,15 +422,30 @@ def handle_join_room_event(data):
     socketio.emit('join_room_announcement', data)
 
 
-
 # -------- VIEW OTHER USERS PROFILE ---------
 @app.route('/profile/<int:user_id>')
 @login_required
 def others(user_id):
     user_id = f'{escape(user_id)}'
     profile_dict = displayProfilePage(user_id)
-    personid = current_user.tg_id 
+    personid = current_user.tg_id
     connection_degree = getConnectionDegree(personid, user_id)
+    connection_degree_ordinal = toOrdinalNum(connection_degree)
+
+    received_friend_requests = displayFriendRequests(personid)
+    received_ids = [i["id"] for i in received_friend_requests]
+    if int(user_id) in received_ids:
+        received = "True"
+    else:
+        received="False"
+
+    sent_friend_requests = displaySentFriendRequests(personid)
+    sent_ids = [i["id"] for i in sent_friend_requests]
+    if int(user_id) in sent_ids:
+        sent = "True"
+    else:
+        sent ="False"
+
 
     expertise_mapping = {
         0: "Hobbyist",
@@ -758,23 +455,28 @@ def others(user_id):
         4: "Expert - Field experts"
     }
 
-    nav_items = [
-        {"nav_label": "About",
-         "nav_link": "#"},
-        {"nav_label": "Messages",
-         "nav_link": "/chat_home"},
-        {"nav_label": "My Profile",
-         "nav_link": "/my-profile"},
-           {"nav_label": "Blocked",
-         "nav_link": "/blocked"},
-        {"nav_label": "Logout",
-         "nav_link": "/logout"}
-    ]
+    aspiration_mapping = {
+        0: "Looking for a new hobby",
+        1: "Student or entry-level skill building",
+        2: "Looking for a potential career switch",
+        3: "How can I build my career and be an expert at this?"
+    }
 
     # , tg_id=current_user.tg_id
-    return render_template('others_profile.html', nav_items=nav_items,  profile_dict=profile_dict, expertise_mapping=expertise_mapping, connection_degree = connection_degree)
+    return render_template('others_profile.html',
+                           user_id=user_id,
+                           nav_items=nav_items_authenticated,
+                           profile_dict=profile_dict,
+                           expertise_mapping=expertise_mapping,
+                           aspiration_mapping=aspiration_mapping,
+                           connection_degree=connection_degree,
+                           connection_degree_ordinal=connection_degree_ordinal,
+                           received=received,
+                           sent=sent)
 
 # -------- FRIENDS ---------
+
+
 @app.route('/friends')
 @login_required
 def friends_list():
@@ -783,10 +485,13 @@ def friends_list():
     friend_list = displayFriendList(personid)
     friend_requests_all = displayFriendRequests(personid)
     blocked_list = displayBlockList(personid)
-
+    sent_friend_requests = displaySentFriendRequests(personid)
 
     # Get friend requests from only those pending
-    friend_requests = [i for i in friend_requests_all if (i not in friend_list) and (i not in blocked_list)]
+    friend_requests = [i for i in friend_requests_all if (
+        i not in friend_list) and (i not in blocked_list)]
+    sent_friend_requests = [i for i in sent_friend_requests if (
+        i not in blocked_list)]
 
     friend_profiles = []
     for friend in friend_list:
@@ -794,18 +499,8 @@ def friends_list():
         friend_profile["id"] = friend["id"]
         friend_profiles.append(friend_profile)
 
-    nav_items = [
-    {"nav_label": "About",
-        "nav_link": "#"},
-    {"nav_label": "Messages",
-        "nav_link": "/chat_home"},
-    {"nav_label": "My Profile",
-        "nav_link": "/my-profile"},
-    {"nav_label": "Logout",
-        "nav_link": "/logout"}
-    ]
+    return render_template('friends_list.html', nav_items=nav_items_authenticated, friend_profiles=friend_profiles, friend_requests=friend_requests, sent_friend_requests=sent_friend_requests)
 
-    return render_template('friends_list.html', nav_items=nav_items, friend_profiles=friend_profiles, friend_requests=friend_requests)
 
 @app.route('/friend_request', methods=['POST'])
 @login_required
@@ -814,7 +509,10 @@ def send_friend_request():
     friendid = request.form.get("friend_id")
     send_friendRequest(personid, friendid)
 
-    return redirect(url_for("friends_list"))
+    return '<script>document.location.href = document.referrer</script>'
+
+    # return redirect(url_for("friends_list"))
+
 
 @app.route('/accept_friend', methods=['POST'])
 @login_required
@@ -824,6 +522,7 @@ def accept_friend_request():
     accept_friendRequest(personid, friendid)
 
     return redirect(url_for("friends_list"))
+
 
 @app.route('/delete_friend', methods=['POST'])
 @login_required
@@ -839,17 +538,6 @@ def delete_friend_from_list():
 @app.route('/blocked')
 @login_required
 def blocked_list():
-    nav_items = [
-        {"nav_label": "Me",
-         "nav_link": "/my-profile"},
-        {"nav_label": "Messages",
-         "nav_link": "/chat_home"},
-        {"nav_label": "Friends",
-         "nav_link": "/friends"},
-        {"nav_label": "Logout",
-         "nav_link": "/logout"}
-    ]
-
     personid = current_user.tg_id
     # personid = 2
     blocked_list = displayBlockList(personid)
@@ -860,7 +548,8 @@ def blocked_list():
         blocked_profile["id"] = blocked["id"]
         blocked_profiles.append(blocked_profile)
 
-    return render_template('blocked_list.html', blocked_profiles=blocked_profiles, nav_items=nav_items)
+    return render_template('blocked_list.html', blocked_profiles=blocked_profiles, nav_items=nav_items_authenticated)
+
 
 @app.route('/block_person', methods=['POST'])
 @login_required
@@ -868,6 +557,8 @@ def block_person_01():
     personid = current_user.tg_id
     blockid = request.form.get("block_id")
     block_person(personid, blockid)
+    delete_friend(personid, blockid)
+
     return redirect(url_for("blocked_list"))
 
 
@@ -878,6 +569,7 @@ def unblock_person_01():
     blockid = request.form.get("unblock_id")
     unblock_person(personid, blockid)
     return redirect(url_for("blocked_list"))
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

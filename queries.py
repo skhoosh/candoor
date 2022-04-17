@@ -2,9 +2,6 @@ from tigergraph_settings import *
 import pyTigerGraph as tg
 from datetime import datetime
 
-from uuid import uuid4
-rand_token = uuid4()
-
 conn = tg.TigerGraphConnection(host = hostName, username = userName, password = password)
 
 conn.graphname = "candoor"
@@ -311,42 +308,3 @@ def getConnectionDegree(personid, otherpersonid):
     return results[0]["@@connection"]
 
 
-check = createNewUser("Audrey", "audrey@gmail.com", "password", "Female", "Singapore")
-print(check)
-profile_dict = displayProfilePage(1)
-settings_dict = displaySettingsPage(1)
-update_userParticulars(1, "NB", "Singapore")
-
-update_profile(1, "Audrey", "audrey.jpg", "Candoor cofounder", "", "Validation engineer by day, tigergrapher at night.", True)
-add_aspiration(1,"tigergraph",4,"want to master tg",1,True)
-update_aspiration(1,"Machine Learning",1,"I'm interested to learn machine learning.",3,True)
-delete_aspiration(1,"medicine",2)
-
-add_expertise(1,"tigergraph gsql",2,"I have some expertise writing gsql tigergraph queries for the Million Dollar Hackathon.",1,True)
-update_expertise(1,"GSQL (tigergraph)",2,"I have some expertise writing gsql tigergraph queries for the Million Dollar Hackathon.",1,True)
-delete_expertise(1,"engineering",1)
-
-
-updatepassword(1, "password2")
-blockList = displayBlockList(2)
-block_person(2, 3)
-unblock_person(2, 3)
-
-send_friendRequest(5, 1)
-displayFriendRequests(1)
-displaySentFriendRequests(5)
-accept_friendRequest(1, 5)
-displayFriendList(1)
-delete_friend(1, 5)
-
-
-sendMessage(2, 1, "hi", datetime.now())
-sendMessage(1, 2, "Isn't candoor amazing??", datetime.now())
-sendMessage(1, 2, "yes :)))", datetime.now())
-displayChatList(1)
-getMessages(1, 2)
-
-getConnectionDegree(1,2)
-
-find_mentees(1, "engineering", "I've done validation engineering for 5 years. Feel free to ask.", 4)
-find_mentors(1, "machine learning", "I'm interested to learn machine learning.", 3)

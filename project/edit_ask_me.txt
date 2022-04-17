@@ -1,2 +1,0 @@
-{'expertise': 'ducks', 'describeExpertise': 'ducks are cute', 'expertiseLevel': 'expert'}
-{'expertise': 'test', 'describeExpertise': 'test test ', 'expertiseLevel': 'learning'}

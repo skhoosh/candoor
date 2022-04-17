@@ -2,6 +2,30 @@ from tigergraph_settings import *
 import pyTigerGraph as tg
 import time
 
+import sqlite3
+conn = sqlite3.connect(r'project/db.sqlite')
+c = conn.cursor()
+
+c.execute(
+    '''
+    DROP TABLE IF EXISTS user;
+    '''
+)
+
+c.execute(
+    '''
+    CREATE TABLE user 
+    ( `id` INTEGER NOT NULL, 
+    `email` VARCHAR ( 100 ) UNIQUE, 
+    `password` VARCHAR ( 100 ), 
+    `name` VARCHAR ( 1000 ), 
+    `tg_id` TEXT, 
+    PRIMARY KEY(`id`) )
+    '''
+)
+conn.commit()
+conn.close()
+
 startTime = time.time()
 
 conn = tg.TigerGraphConnection(host = hostName, username = userName, password = password)
@@ -34,7 +58,7 @@ if createGlobalSchema:
     # create global schema
     globalSchema_gsql = '''
     USE GLOBAL
-    CREATE VERTEX person (PRIMARY_ID id INT, name STRING, email STRING, password STRING, profile_picture STRING, profile_header STRING DEFAULT "default_profile_pic.jpg", pronouns STRING, profile_description STRING, open_to_connect BOOL DEFAULT "true", auth_token STRING) WITH primary_id_as_attribute="true"
+    CREATE VERTEX person (PRIMARY_ID id INT, name STRING, email STRING, password STRING, profile_picture STRING DEFAULT "default_profile_pic.jpg", profile_header STRING, pronouns STRING, profile_description STRING, open_to_connect BOOL DEFAULT "true", auth_token STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX gender (PRIMARY_ID gender_identity STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX location (PRIMARY_ID country STRING) WITH primary_id_as_attribute="true"
     CREATE VERTEX speciality (PRIMARY_ID area STRING) WITH primary_id_as_attribute="true"
@@ -162,7 +186,11 @@ if installQueries:
         result = SELECT s FROM start:s
             ACCUM
                 @@maxpersonid += s.id;
-        PRINT @@maxpersonid AS result;
+        IF result.size() == 0 THEN
+            PRINT 0 AS result;
+        ELSE
+            PRINT @@maxpersonid AS result;
+        END;
     }
     INSTALL QUERY getmaxpersonid
 
@@ -460,7 +488,7 @@ if installQueries:
     CREATE QUERY accept_friend_request(Vertex<person> personid_vertex, INT friendid_para) FOR GRAPH candoor {
         INSERT INTO friend (FROM, TO) VALUES (personid_vertex, friendid_para person);
         start = {personid_vertex};
-        result = SELECT f FROM start:s - (friend_request:e) - person:f
+        result = SELECT f FROM start:s - (<friend_request:e) - person:f
             WHERE f.id == friendid_para
             
             ACCUM

@@ -3,65 +3,114 @@
 {% block content %}
 
 <div class="container-fluid">
-    {% if friend_requests %}
-    <h1>Friend Requests</h1>
+
+    {% if (not friend_requests) and (not sent_friend_requests) and (not friend_profiles) %}
+    <div class="about_me">
+        <h1>Head to your <a href="/my-profile">profile</a> and enter your expertise/aspirations to find people to
+            connect with </h1>
+    </div>
     {% endif %}
 
-    {% for row in friend_requests %}
 
+    {% if friend_requests %}
     <div class="about_me">
-        <table class="about_me_table">
-            <tr>
-                <td class="about_me_td">
-                <h2><b>{{ row.name }}</b></h2>
-                <button id="viewProfile" class="btn btn-dark" onclick="location.href='/profile/{{ row.id }}'">View
-                    Profile</button>
-                <form action="/accept_friend" method="POST" style="display: inline-block;">
-                    <input type="hidden" name="friend_id" value="{{ row.id }}">
-                    <button type="submit" id="acceptFriend" class="btn btn-dark">Accept Friend Request</button>
-                </form>
-                <form action="/block_person" method="POST" style="display: inline-block;">
-                    <input type="hidden" name="block_id" value="{{ row.id }}">
-                    <button type="submit" id="blockPerson" class="btn btn-danger">Block</button>
-                </form>
-                </td>
-            </tr>
-        </table>
+        <h1>Friend Requests Received</h1>
+        {% for row in friend_requests %}
+        <div class="about_me">
+            <table id="askTable" class="ask_tell_table">
+                <tr>
+                    <td class="td_friends">
+                        <h2><b>{{ row.name }}</b> </h2>
+                    </td>
+                    <td class="td_friends">
+                        <button id="viewProfile" class="btn btn-dark"
+                            onclick="location.href='/profile/{{ row.id }}'">View
+                            Profile</button>
+                        <form action="/accept_friend" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="friend_id" value="{{ row.id }}">
+                            <button type="submit" id="acceptFriend" class="btn btn-dark">Accept Friend Request</button>
+                        </form>
+                        <form action="/block_person" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="block_id" value="{{ row.id }}">
+                            <button type="submit" id="blockPerson" class="btn btn-danger">Block</button>
+                        </form>
+                    </td>
+
+                </tr>
+            </table>
+
+        </div>
+        {% endfor %}
     </div>
-
-    {% endfor %}
-
-    <h1>Friends</h1>
+    {% endif %}
 
 
-    {% for profile in friend_profiles %}
-
+    {% if sent_friend_requests %}
     <div class="about_me">
-        <table class="about_me_table">
-            <tr>
-                <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
-                        height="200px" width="200px"></td>
-                <td class="about_me_td">
-                    <h2><b>{{ profile.name }}</b></h2>
-                    <p><i>{{ profile.profile_header }}</i> </p>
-                    <p>
-                        {{ profile.profile_description }}
-                    </p>
-                    <button id="viewProfile" class="btn btn-dark" onclick="location.href='/profile/{{ profile.id }}'">View
-                        Profile</button>
-                    <form action="/delete_friend" method="POST" style="display: inline-block;">
-                        <input type="hidden" name="delete_id" value="{{ profile.id }}">
-                        <button type="submit" id="deleteFriend" class="btn btn-danger">Delete Friend</button>
-                    </form>
-                    <form action="/block_person" method="POST" style="display: inline-block;">
-                        <input type="hidden" name="block_id" value="{{ profile.id }}">
-                        <button type="submit" id="blockPerson" class="btn btn-danger">Block</button>
-                    </form>
-                </td>
-            </tr>
-         
-        </table>
+        <h1>Friend Requests Sent</h1>
+        {% for row in sent_friend_requests %}
+        <div class="about_me">
+            <table id="askTable" class="ask_tell_table">
+                <tr>
+                    <td class="td_friends">
+                        <h2><b>{{ row.name }}</b> </h2>
+                    </td>
+                    <td class="td_friends">
+
+                        <button id="viewProfile" class="btn btn-dark"
+                            onclick="location.href='/profile/{{ row.id }}'">View
+                            Profile</button>
+                        <form action="/delete_friend" method="POST" style="display: inline-block;">
+                    <input type="hidden" name="delete_id" value="{{ row.id }}">
+                    <button type="submit" id="deleteFriend" class="btn btn-danger">Delete Friend</button>
+                </form>
+                        <form action="/block_person" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="block_id" value="{{ row.id }}">
+                            <button type="submit" id="blockPerson" class="btn btn-danger">Block</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+    {% endif %}
+
+
+    {% if friend_profiles %}
+    <div class="about_me">
+        <h1>Friends</h1>
+        {% for profile in friend_profiles %}
+        <div class="about_me">
+            <table class="about_me_table">
+                <tr>
+                    <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
+                            height="200px" width="200px"></td>
+                    <td class="about_me_td">
+                        <h2><b>{{ profile.name }}</b></h2>
+                        <p><i>{{ profile.profile_header }}</i> </p>
+                        <p>
+                            {{ profile.profile_description }}
+                        </p>
+                        <button id="viewProfile" class="btn btn-dark"
+                            onclick="location.href='/profile/{{ profile.id }}'">View
+                            Profile</button>
+                        <form action="/delete_friend" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="delete_id" value="{{ profile.id }}">
+                            <button type="submit" id="deleteFriend" class="btn btn-danger">Delete Friend</button>
+                        </form>
+                        <form action="/block_person" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="block_id" value="{{ profile.id }}">
+                            <button type="submit" id="blockPerson" class="btn btn-danger">Block</button>
+                        </form>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
 </div>
 {% endblock %}

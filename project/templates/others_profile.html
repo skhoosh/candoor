@@ -1,27 +1,62 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="connection_details">
-    </div>
 
+
+<div class="container-fluid">
     <div class="about_me">
         <table id="askTable" class="about_me_table">
             <tr>
-                <td class="about_me_td"><img id="profile_pic" src="" alt=""
-                        height="200px" width="200px"></td>
+                <td class="about_me_td"><img id="profile_pic" src="" alt="" height="200px" width="200px"></td>
                 <td class="about_me_td">
-                    <h2><b>{{ profile_dict.name }}</b></h2> 
-                    <p>{{ connection_degree }} degrees</p>
-                    <p> {{ profile_dict.pronouns }}</p>
-                    <p><i>{{ profile_dict.profile_header }}</i></p>
-                    <p>
-                        {{ profile_dict.profile_description }}
-                    </p>
-                    <form action="/add_chatlist" method="POST" style="display:inline-block;">
-                        <input type="hidden" value="{{ profile_dict.id }}" name="friend_id">
-                    <button type="submit" id="sendChat" class="btn btn-dark">Send Message</button>
-                </form>
+                    <h2><b>{{ profile_dict.name }}</b></h2>
+                    <p> {{ profile_dict.pronouns }}
+                        {% if (connection_degree < 4) and (profile_dict.pronouns) %} &nbsp;|&nbsp; {% endif %} {% if
+                            connection_degree < 4 %} {{ connection_degree_ordinal }} degree connection </p>
+                            {% endif %}
+
+                            <p><i>{{ profile_dict.profile_header }}</i></p>
+                            <p>
+                                {{ profile_dict.profile_description }}
+                            </p>
+
+                            {% if received=="True" %}
+                            <form action="/accept_friend" method="POST" style="display: inline-block;">
+                                <input type="hidden" name="friend_id" value="{{ user_id }}">
+                                <button type="submit" id="acceptFriend" class="btn btn-dark">Accept Friend Request</button>
+                            </form>
+                            <form action="/block_person" method="POST" style="display: inline-block;">
+                                <input type="hidden" name="block_id" value="{{ user_id }}">
+                                <button type="submit" id="blockPerson" class="btn btn-danger">Block</button>
+                            </form>
+                            {% elif sent=="True" %}
+                            <form action="/friend_request" method="POST" style="display:inline-block;">
+                                <input type="hidden" value="{{ user_id }}" name="friend_id">
+                                <button type="submit" id="sendFriendRequest" class="btn btn-dark"
+                                disabled>Friend Request Sent</button>
+                            </form>
+                            <!-- <form action="/block_person" method="POST" style="display: inline-block;">
+                                <input type="hidden" name="block_id" value="{{ user_id }}">
+                                <button type="submit" id="blockPerson" class="btn btn-danger">Block</button>
+                            </form> -->
+                            {% elif connection_degree > 1 %}
+                            <form action="/friend_request" method="POST" style="display:inline-block;">
+                                <input type="hidden" value="{{ user_id }}" name="friend_id">
+                                <button type="submit" id="sendFriendRequest" class="btn btn-dark"
+                                    onClick="alertSentFriendRequest();">Send Friend Request</button>
+                            </form>
+                            {% else %}
+                            <form action="/delete_friend" method="POST" style="display: inline-block;">
+                                <input type="hidden" name="delete_id" value="{{ user_id }}">
+                                <button type="submit" id="deleteFriend" class="btn btn-danger">Delete Friend</button>
+                            </form>
+                            <form action="/block_person" method="POST" style="display: inline-block;">
+                                <input type="hidden" name="block_id" value="{{ user_id }}">
+                                <button type="submit" id="blockPerson" class="btn btn-danger">Block</button>
+                            </form>
+
+                            {% endif %}
+
                 </td>
             </tr>
         </table>
@@ -32,11 +67,12 @@
             <h4>Ask Me About</h4>
         </div>
         <div class="ask_tell_body" action="/">
-            <form action="POST">
+            <!-- <form action="POST"> -->
                 <table id="tellTable" class="ask_tell_table">
                     {% for row in profile_dict.expertiseList %}
                     <tr class="ask_tell_tr">
-                        <!-- <td class="ask_tell_td"><input type="radio" name="expertiseRadio" id="{{ row.num }}" value="{{ row.num }}"></td> -->
+                        <td class="ask_tell_td"><input type="radio" name="expertiseRadio" id="{{ row.num }}"
+                                value="{{ row.num }}" onclick="showAskMessage(this);"></td>
                         <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
                         <td class="ask_tell_td">{{ row.description }}</td>
                         <td class="ask_tell_td">{{ expertise_mapping[row.proficiency_level] }}</td>
@@ -44,12 +80,15 @@
                     </tr>
                     {% endfor %}
 
-
                 </table>
                 <br>
-                <!-- <p><b>Send message to {{ profile_dict.name }}</b></p>
-                <button type="button" class="btn btn-dark">Send Message</button> -->
-            </form>
+                <p><b>Send message to {{ profile_dict.name }}</b></p>
+                <form action="/add_chatlist" method="POST">
+                    <textarea name="messageText" id="askText" style="width:100%; height:100%; border:none;" placeholder="Select a which topic you would like to chat about"></textarea>
+                    <input type="hidden" value="{{ user_id }}" name="friend_id">
+                    <button type="submit" id="sendAsk" class="btn btn-dark">Send Message</button>
+                </form>
+            <!-- </form> -->
         </div>
     </div>
 
@@ -58,38 +97,74 @@
             <h4>Tell Me About</h4>
         </div>
         <div class="ask_tell_body" action="/">
-            <form action="POST">
+            <!-- <form action="POST"> -->
                 <table class="ask_tell_table">
                     {% for row in profile_dict.aspirationList %}
                     <tr class="ask_tell_tr">
-                        <!-- <td class="ask_tell_td"><input type="radio" name="aspirationsRadio" id="{{ row.num }}" value="{{ row.num }}"></td> -->
-                        <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
+                        <td class="ask_tell_td"><input type="radio" name="aspirationRadio" id="{{ row.num }}"
+                            value="{{ row.num }}" onclick="showTellMessage(this);"></td>                        
+                            <td class="ask_tell_td"><b>{{ row.speciality }}</b></td>
                         <td class="ask_tell_td">{{ row.description }}</td>
-                        <td class="ask_tell_td">{{ row.interest_level }}</td>
+                        <td class="ask_tell_td">{{ aspiration_mapping[row.interest_level] }}</td>
 
                     </tr>
                     {% endfor %}
 
                 </table>
                 <br>
-                <!-- <p><b>Send message to {{ profile_dict.name }}</b></p>
-                <button type="button" class="btn btn-dark">Send Message</button> -->
-            </form>
+                <p><b>Send message to {{ profile_dict.name }}</b></p>
+                <form action="/add_chatlist" method="POST">
+                    <textarea name="messageText" id="tellText" style="width:100%; height:100%; border:none;" placeholder="Select a which topic you would like to chat about"></textarea>
+                    <input type="hidden" value="{{ user_id }}" name="friend_id">
+                    <button type="submit" id="sendTell" class="btn btn-dark">Send Message</button>
+                </form>
+            <!-- </form> -->
         </div>
     </div>
-<script>
-    // SET PROFILE PIC TO DEFAULT IF NOT EXISTS 
-    var profile_pic = "{{ profile_dict.profile_picture }}"
-    if (profile_pic) {
-        document.getElementById("profile_pic").src = "/static/styles/img/{{ profile_dict.profile_picture }}"
+    <script>
+        // SET PROFILE PIC TO DEFAULT IF NOT EXISTS 
+        var profile_pic = "{{ profile_dict.profile_picture }}"
+        if (profile_pic) {
+            document.getElementById("profile_pic").src = "/static/styles/img/{{ profile_dict.profile_picture }}"
 
-    } else {
-        document.getElementById("profile_pic").src = "/static/styles/img/fluid_bg.jpg"
-    }
+        } else {
+            document.getElementById("profile_pic").src = "/static/styles/img/fluid_bg.jpg"
+        }
+
+        function alertSentFriendRequest() {
+            alert("Your friend request has been sent");
+            // e.preventDefault(e);
+        }
+
+        // ============== DISABLE SEND MESSAGE IF NO RADIO CHECKED =================
+        if (!document.getElementsByName("expertiseRadio")[0].checked) {
+            document.getElementById("sendAsk").disabled = true;
+        } else {
+            document.getElementById("sendAsk").disabled = false;
+
+        }
+
+        if (!document.getElementsByName("aspirationRadio")[0].checked) {
+            document.getElementById("sendTell").disabled = true;
+        }
 
 
- 
-</script>
+
+        // ============== Message when radio selected =================
+        function showAskMessage(radioSelected) {
+            var speciality = radioSelected.parentNode.nextElementSibling.textContent
+            document.getElementById("sendAsk").disabled = false;
+            document.getElementById("askText").value = `Hi {{ profile_dict.name }}! I would love to hear more about ${speciality}. Could we please connect?`
+        }
+
+
+        function showTellMessage(radioSelected) {
+            var speciality = radioSelected.parentNode.nextElementSibling.textContent
+            document.getElementById("sendTell").disabled = false;
+            document.getElementById("tellText").value = `Hi {{ profile_dict.name }}! I would love to share more about ${speciality}. Could we please connect?`
+        }
+
+    </script>
 </div>
 
 {% endblock %}

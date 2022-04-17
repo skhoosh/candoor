@@ -6,6 +6,11 @@ body {
   /* color: #383838ff; */
 }
 
+h1 {
+  text-align: center;
+  margin-top: 20px;
+}
+
 h3 {
   font-family: 'Shrikhand', cursive;
 }
@@ -295,4 +300,9 @@ h3 {
 #textBox {
   width: 95%; 
   height: 100%; 
+}
+
+/* ========= Friends ======== */
+.td_friends {
+  width: 50%;
 }
