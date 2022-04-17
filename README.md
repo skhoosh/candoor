@@ -2,7 +2,7 @@
 
 For this project, we used python version 3.10.0 on Windows, TigerGraph version 3.5.0, and tested using Chrome browser.
 
-Download Python version 3.10 from https://www.python.org/downloads/release/python-3100/ and install it.
+Download Python version 3.10 from https://www.python.org/downloads/release/python-3100/ and install it. At the bottom, please check the "Add Python 3.10 to PATH" option before clicking "Install Now".
 
 Git clone this repository. If you have git installed on your computer, you may do this by typing this command in your terminal:
 
