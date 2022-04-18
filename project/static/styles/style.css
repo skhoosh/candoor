@@ -15,6 +15,10 @@ h3 {
   font-family: 'Shrikhand', cursive;
 }
 
+.profilePicClass {
+  object-fit: contain;
+}
+
 .searchForm{
   display: inline-block;
   width: auto;
