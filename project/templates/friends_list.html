@@ -84,8 +84,8 @@
         <div class="about_me">
             <table class="about_me_table">
                 <tr>
-                    <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
-                            height="200px" width="200px"></td>
+                    <td class="about_me_td"><img src="/static/styles/img/{{ profile.profile_picture }}" alt=""
+                            height="200px" width="200px" class="profilePicClass"></td>
                     <td class="about_me_td">
                         <h2><b>{{ profile.name }}</b></h2>
                         <p><i>{{ profile.profile_header }}</i> </p>

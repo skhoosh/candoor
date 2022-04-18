@@ -8,7 +8,7 @@
             <tr>
                 <!-- <td class="about_me_td"><img src="{{ url_for('static',filename='styles/img/fluid_bg.jpg') }}" alt=""
                         height="200px" width="200px"></td> -->
-                        <td class="about_me_td"><img class="profilePicClass" id="profile_pic" src="" alt=""
+                        <td class="about_me_td"><img class="profilePicClass" id="profile_pic" src="/static/styles/img/{{ my_profile_dict.profile_picture }}" alt=""
                             height="200px" width="200px"></td>
                 <td class="about_me_td">
                     <h2><b>{{ my_profile_dict.name }}</b></h2>
@@ -148,11 +148,11 @@
                 <div class="mb-3">
                     <label for="expertiseLevel" class="form-label">Choose your level of expertise:</label>
                     <select class="form-select" name="expertiseLevel" id="editExpertiseLevel">
-                        <option value="0">Hobbyist</option>
-                        <option value="1">Novice - Students or entry-level</option>
-                        <option value="2">Intermediate - Some experience applying theory to practice</option>
-                        <option value="3">Advanced - Professional and practical experience</option>
-                        <option value="4">Expert - Field experts</option>
+                        <option value="0">Hobbyist - I do this for a hobby</option>
+                        <option value="1">Novice - I'm a student or in an entry-level role</option>
+                        <option value="2">Intermediate - I have some experience applying theory to practice</option>
+                        <option value="3">Advanced - I'm a professional with practical experience</option>
+                        <option value="4">Expert - I'm an expert, ask me anything</option>
                     </select>
                 </div>
 
@@ -185,9 +185,11 @@
                 <div class="mb-3">
                     <label for="aspirationLevel" class="form-label">Choose your level of aspiration:</label>
                     <select class="form-select" name="aspirationLevel" id="editAspirationLevel">
-                        <option value="0">I'm curious about the hobby</option>
-                        <option value="1">I'm trying to learn about this</option>
-                        <option value="2">Looking for a potential career switch</option>
+                        <option value="0">Hobbyist - I'm looking for a new hobby</option>
+                        <option value="1">Novice - I interested in studying this or learn more about it</option>
+                        <option value="2">Intermediate - Looking to see if I can begin a career or side-hustle in this</option>
+                        <option value="3">Advanced - I want to advance professionally in this</option>
+                        <option value="4">Expert - I want to be an expert at this</option>
                     </select>
                 </div>
 
@@ -232,14 +234,6 @@
 
 
     <script>
-        // SET PROFILE PIC TO DEFAULT IF NOT EXISTS 
-        var profile_pic = "{{ my_profile_dict.profile_picture }}"
-        if (profile_pic) {
-            document.getElementById("profile_pic").src = "/static/styles/img/{{ my_profile_dict.profile_picture }}"
-
-        } else {
-            document.getElementById("profile_pic").src = "/static/styles/img/fluid_bg.jpg"
-        }
 
             // ============== ENABLE or DISABLE FIND PEOPLE ===============
             if (document.getElementById("askTable").rows.length) {

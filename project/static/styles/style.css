@@ -16,7 +16,7 @@ h3 {
 }
 
 .profilePicClass {
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .searchForm{

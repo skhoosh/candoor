@@ -10,19 +10,19 @@
             {% for row in friends_list %}
             <div class="chatPerson">
                 <form action="/chat_home">
-                    {% if personid | int < row.id | int %}
-                    <input type="hidden" id="room_id" name="room" value="{{ personid }}_to_{{ row.id }}">
-                    <input type="hidden" name="friend_id" value="{{ row.id }}">
-                    <button type="submit" id="{{ personid }}_to_{{ row.id }}" class="btn btn-dark">
-                        {{ row.name }}
-                    </button>
-                    {% else %}
-                    <input type="hidden" id="room_id" name="room" value="{{ row.id }}_to_{{ personid }}">
-                    <input type="hidden" name="friend_id" value="{{ row.id }}">
-                    <button type="submit" id="{{ row.id }}_to_{{ personid }}" class="btn btn-dark">
-                        {{ row.name }}
-                    </button>
-                    {% endif %}
+                    {% if personid | int < row.id | int %} <input type="hidden" id="room_id" name="room"
+                        value="{{ personid }}_to_{{ row.id }}">
+                        <input type="hidden" name="friend_id" value="{{ row.id }}">
+                        <button type="submit" id="{{ personid }}_to_{{ row.id }}" class="btn btn-dark">
+                            {{ row.name }}
+                        </button>
+                        {% else %}
+                        <input type="hidden" id="room_id" name="room" value="{{ row.id }}_to_{{ personid }}">
+                        <input type="hidden" name="friend_id" value="{{ row.id }}">
+                        <button type="submit" id="{{ row.id }}_to_{{ personid }}" class="btn btn-dark">
+                            {{ row.name }}
+                        </button>
+                        {% endif %}
                 </form>
             </div>
 
@@ -69,75 +69,93 @@
 <script>
     // Server
     const socket = io.connect('http://127.0.0.1:5000');
-
-    // Set room_id
+    // Set room_id (not sure if this is working, set up the correct way in app.py)
     var room_id;
 
     if ("{{ personid }}" > " {{ friend_id }}") {
-        room_id = "{{ personid }}_to_{{ friend_id }}"
+        room_id = "{{ friend_id }}_to_{{ personid }}"
     } else {
-        room_id = "{{ friendid }}_to_{{ person_id }}"
+        room_id = "{{ personid }}_to_{{ friend_id }}"
     }
 
-    // when socket event triggered
-    socket.on('connect', function () {
-        socket.emit('join_room', {
-            username: "{{ username }}",
-            sender: "{{ personid }}",
-            receiver: "{{ friend_id }}",
-            room: room_id
-        });
+    // Use enter to submit messages 
+    var input = document.getElementById("message_input");
 
-        // To send messages (i.e. back to server side)
-        let message_input = document.getElementById('message_input');
-        // e - event 
-        document.getElementById('message_input_form').onsubmit = function (e) {
-            e.preventDefault(); // i.e. prevent default event when clicking a submit button 
-            let message = message_input.value.trim(); // remove white spaces from message
-            if (message.length) { // check that message length is more than 0 
-                socket.emit('send_message', {
-                    username: "{{ username }}",
-                    sender: "{{ personid }}",
-                    receiver: "{{ friend_id }}",
-                    room: room_id,
-                    message: message
-                })
-
-            }
-            message_input.value = ''; // empty message input 
-            message_input.focus(); // focus cursor back on message input text field 
+    input.addEventListener("keyup", function(event){
+        if (event.keyCode === 13) {
+            document.getElementById("sendMsg").click();
         }
-    });
-
-    // handle receive message (i.e emit receive_message after send message received)
-    socket.on('receive_message', function (data) {
-        const newNode = document.createElement('div')
-        newNode.innerHTML = `<b>${data.username}:&nbsp;</b> ${data.message}`
-        document.getElementById('messages').appendChild(newNode);
     })
 
-    // when someone else joins the room 
-    // socket.on('join_room_announcement', function (data) {
-    //     console.log(messages)
-    //     // put in messages:
-    //     // const newNode = document.createElement('div')
-    //     // newNode.innerHTML = `<b>${data.username}</b> has joined the room`
-    //     // document.getElementById('messages').appendChild(newNode);
-    // })
-
     // Ask user to choose a friend if no params found 
+    // Join room if params found
     var url = window.location.href;
     var arr = url.split('?');
     if (arr.length > 1 && arr[1] !== '') {
         console.log('params found');
         document.getElementById("{{ room }}").style.color = "#eba3d8ff"
+        document.getElementById("sendMsg").disabled = false;
+        document.getElementById("message_input").disabled = false;
+        // when socket event triggered
+        socket.on('connect', function () {
+            socket.emit('join_room', {
+                username: "{{ username }}",
+                sender: "{{ personid }}",
+                receiver: "{{ friend_id }}",
+                room: room_id
+            });
 
-    } else { 
+            // To send messages (i.e. back to server side)
+            let message_input = document.getElementById('message_input');
+            // e - event 
+            document.getElementById('message_input_form').onsubmit = function (e) {
+                e.preventDefault(); // i.e. prevent default event when clicking a submit button 
+                let message = message_input.value.trim(); // remove white spaces from message
+                // check that message length is more than 0
+                if (message.length) {
+                    socket.emit('send_message', {
+                        username: "{{ username }}",
+                        sender: "{{ personid }}",
+                        receiver: "{{ friend_id }}",
+                        room: room_id,
+                        message: message
+                    })
+
+                }
+                message_input.value = ''; // empty message input 
+                message_input.focus(); // focus cursor back on message input text field 
+            }
+        });
+
+    } else {
         // document.getElementById("messages").style.backgroundColor = "grey";
-         document.getElementById("messages").innerHTML = "<h2>Select Friend to Chat With</h2>";
+        document.getElementById("messages").innerHTML = "<h1>&larr; Select a Friend to Chat With</h1>";
         document.getElementById("sendMsg").disabled = true;
+        document.getElementById("message_input").disabled = true;
 
     }
+
+
+    // Scroll to bottom to show msgs
+    message_window = document.getElementById("messages");
+    message_window.scrollTo(0, message_window.scrollHeight);
+
+    function scrollToBottomMessages() {
+        message_window = document.getElementById("messages");
+        message_window.scrollTo(0, message_window.scrollHeight);
+    }
+
+
+    // handle receive message (i.e emit receive_message after send message received)
+    socket.on('receive_message', function (data) {
+        // console.log(data);
+        const newNode = document.createElement('div')
+        newNode.innerHTML = `<b>${data.username}:&nbsp;</b> ${data.message}`
+        document.getElementById('messages').appendChild(newNode);
+        scrollToBottomMessages();
+    })
+
+
 
 </script>
 

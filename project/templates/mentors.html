@@ -3,7 +3,17 @@
 {% block content %}
 <div class="container-fluid">
     <br>
-    <h1>Learn about {{ speciality }} from:</h1>
+    {% if mentors %}
+    <h1>Learn about <b>{{ speciality }}</b> from:</h1>
+    {% else %}
+    <div>
+        <h1>Sorry we could not find anyone who can tell you more about <b>{{ speciality }}</b>
+           </h1>
+        <h1> Try searching for a different topic: <br> <a href="/my-profile">Back to your profile</a> </h1>
+    </div>
+    {% endif %}
+
+  
 
     {% for row in mentors %}
 
@@ -11,7 +21,7 @@
         <table class="about_me_table">
             <tr>
                 <td class="about_me_td"><img src="/static/styles/img/{{ row.profile_picture }}" alt="" height="200px"
-                        width="200px"></td>
+                        width="200px" class="profilePicClass"></td>
                 <td class="about_me_td">
                     <h2><b>{{ row.name }}</b></h2>
                     <p> {{ row.pronouns }}</p>

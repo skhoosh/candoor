@@ -73,6 +73,22 @@ nav_items_authenticated = [
      "nav_link": "/logout"}
 ]
 
+expertise_mapping = {
+    0: "Hobbyist - I do this for a hobby",
+    1: "Novice - I'm a student or in an entry-level role",
+    2: "Intermediate - I have some experience applying theory to practice",
+    3: "Advanced - I'm a professional with practical experience",
+    4: "Expert - I'm an expert, ask me anything"
+}
+
+aspiration_mapping = {
+    0: "Hobbyist - I'm looking for a new hobby",
+    1: "Novice - I interested in studying this or learn more about it",
+    2: "Intermediate - Looking to see if I can begin a career or side-hustle in this",
+    3: "Advanced - I want to advance professionally in this",
+    4: "Expert - I want to be an expert at this"
+}
+
 
 def toOrdinalNum(n):
     return str(n) + {1: 'st', 2: 'nd', 3: 'rd'}.get(4 if 10 <= n % 100 < 20 else n % 10, "th")
@@ -192,23 +208,12 @@ def my_profile():
     user_id = current_user.tg_id
     my_profile_dict = displayProfilePage(user_id)
 
-    expertise_mapping = {
-        0: "Hobbyist",
-        1: "Novice - Students or entry-level",
-        2: "Intermediate - Some experience applying theory to practice",
-        3: "Advanced - Professional and practical experience",
-        4: "Expert - Field experts"
-    }
-
-    aspiration_mapping = {
-        0: "Looking for a new hobby",
-        1: "Student or entry-level skill building",
-        2: "Looking for a potential career switch",
-        3: "How can I build my career and be an expert at this?"
-    }
-
     # , tg_id=current_user.tg_id
-    return render_template('my_profile.html', nav_items=nav_items_authenticated, my_profile_dict=my_profile_dict, expertise_mapping=expertise_mapping, aspiration_mapping=aspiration_mapping)
+    return render_template('my_profile.html',
+                           nav_items=nav_items_authenticated,
+                           my_profile_dict=my_profile_dict,
+                           expertise_mapping=expertise_mapping,
+                           aspiration_mapping=aspiration_mapping)
 
 # -------- EDIT MY PROFILE --------
 
@@ -402,9 +407,14 @@ def add_chatlist():
     personid = current_user.tg_id
     friendid = request.form.get("friend_id")
     text = request.form.get("messageText")
+    if (int(personid) > int(friendid)):
+        room_id = f'{friendid}_to_{personid}'
+    else:
+        room_id = f'{personid}__to_{friendid}'
+
     sendMessage(personid, friendid, text, datetime.now())
 
-    return redirect(url_for("chat_home"))
+    return redirect(url_for("chat_home", room=room_id, friend_id=friendid))
 
 
 @socketio.on('send_message')
@@ -412,13 +422,25 @@ def handle_send_message_event(data):
     # Save message to TG
     sendMessage(data["sender"], data["receiver"],
                 data["message"], datetime.now())
+
+    if (int(data["sender"]) > int(data["receiver"])):
+        room_id = f'{data["receiver"]}_to_{data["sender"]}'
+    else:
+        room_id = f'{data["sender"]}_to_{data["receiver"]}'
     # Emit message to Client
-    socketio.emit('receive_message', data, room=data['room'])
+    socketio.emit('receive_message', data, room=room_id)
 
 
 @socketio.on('join_room')
 def handle_join_room_event(data):
-    join_room(data["room"])
+    print(data["sender"])
+    if (data["sender"]):
+        if (int(data["sender"]) > int(data["receiver"])):
+            room_id = f'{data["receiver"]}_to_{data["sender"]}'
+        else:
+            room_id = f'{data["sender"]}_to_{data["receiver"]}'
+    # join_room(data["room"])
+    join_room(room_id)
     socketio.emit('join_room_announcement', data)
 
 
@@ -437,30 +459,14 @@ def others(user_id):
     if int(user_id) in received_ids:
         received = "True"
     else:
-        received="False"
+        received = "False"
 
     sent_friend_requests = displaySentFriendRequests(personid)
     sent_ids = [i["id"] for i in sent_friend_requests]
     if int(user_id) in sent_ids:
         sent = "True"
     else:
-        sent ="False"
-
-
-    expertise_mapping = {
-        0: "Hobbyist",
-        1: "Novice - Students or entry-level",
-        2: "Intermediate - Some experience applying theory to practice",
-        3: "Advanced - Professional and practical experience",
-        4: "Expert - Field experts"
-    }
-
-    aspiration_mapping = {
-        0: "Looking for a new hobby",
-        1: "Student or entry-level skill building",
-        2: "Looking for a potential career switch",
-        3: "How can I build my career and be an expert at this?"
-    }
+        sent = "False"
 
     # , tg_id=current_user.tg_id
     return render_template('others_profile.html',
