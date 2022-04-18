@@ -1,10 +1,12 @@
 # Candoor
-**Contributers and Contact Information:**
+
+**Contributers and Contact Information**
+
 Audrey and Stephanie
 
-**Problem Statement addressed (or explain your own): **
+**Problem Statement addressed (or explain your own):**
 
-**The Problem **
+**The Problem**
 
 As humans we naturally need meaningful connections with others to thrive. Social connections impact almost all aspects of our lives, from our happiness and health to our work prospects, prosperity and material well-being (5). However, in 2018, global health service company Cigna (1) undertook a survey on loneliness. The survey of more than 20,000 US adults, aged 18 and over revealed an average loneliness score of 44 on the UCLA loneliness scale. A score of 43 or higher indicates loneliness. Younger adults born between the mid-1990s and early 2000s had higher loneliness scores of about 48, compared with about 39 for respondents aged 72 and older (2). More recently, due to the pandemic, this issue has only gotten worse. In late 2020, a study by the Making Caring Common Project (part of Harvard Graduate School of Education) (3) found that 43% of young adults reported an increase in loneliness due to the pandemic. 
 
@@ -16,7 +18,7 @@ The issue of privilege and unequal access to resources is not new. While disport
 
 If this problem goes unchecked, we feel that opportunities for social mobility will only decrease, and the income disparity, wider. We would like everyone to have the opportunity to explore their interests, unleash their full potential, and ultimately live fulfilled lives.
 
-**The Challenge **
+**The Challenge**
 
 It is clear from these examples that for the good of society, it would be beneficial to find a way to help foster meaningful relationships between people so that everyone can live life to their fullest potential. We hope to help people foster meaningful connections with each other, by facilitating connections in a safe and mutually beneficial way by connecting aspirants looking to explore a subject, with experts willing to share about the same subject. 
 
