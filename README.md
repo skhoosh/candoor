@@ -1,8 +1,12 @@
 # Candoor
 
+_Thanks for taking an interest in Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form](https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link)._
+
+
 **Contributers and Contact Information**
 
-Audrey and Stephanie
+Audrey and Stephanie can be contacted at candoorteam@gmail.com
+
 
 **Problem Statement addressed (or explain your own):**
 
@@ -122,11 +126,7 @@ Review the steps you took to create this project and the resources you were prov
 
 Please give credit to other projects, videos, talks, people, and other sources that have inspired and influenced your project. 
 
-
-
-
 ---
-
-_Thanks for taking an interest in Candoor. If you have any feedback you would like to give, or would like to stay informed about our project, please fill out our [interest form](https://docs.google.com/forms/d/e/1FAIpQLSd4ZxQMr6pJWh_TXU-yFns7t0eYT_vzWUOEFDEzvEGBum5qNw/viewform?vc=0&c=0&w=1&flr=0&usp=mail_form_link)._
-
 Thank you :>
+
+
