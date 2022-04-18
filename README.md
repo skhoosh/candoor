@@ -3,7 +3,8 @@
 Audrey and Stephanie
 
 **Problem Statement addressed (or explain your own): **
-The Problem 
+
+**The Problem **
 
 As humans we naturally need meaningful connections with others to thrive. Social connections impact almost all aspects of our lives, from our happiness and health to our work prospects, prosperity and material well-being (5). However, in 2018, global health service company Cigna (1) undertook a survey on loneliness. The survey of more than 20,000 US adults, aged 18 and over revealed an average loneliness score of 44 on the UCLA loneliness scale. A score of 43 or higher indicates loneliness. Younger adults born between the mid-1990s and early 2000s had higher loneliness scores of about 48, compared with about 39 for respondents aged 72 and older (2). More recently, due to the pandemic, this issue has only gotten worse. In late 2020, a study by the Making Caring Common Project (part of Harvard Graduate School of Education) (3) found that 43% of young adults reported an increase in loneliness due to the pandemic. 
 
