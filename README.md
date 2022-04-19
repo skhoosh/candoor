@@ -86,7 +86,7 @@ Activate the virtual environment:
 
 Our project requires libraries, listed in the requirements.txt file. Install the required packages in the virtual environment:
 
-`pip install -r requirements.txt`
+`pip3 install -r requirements.txt`
 
 ---
 
