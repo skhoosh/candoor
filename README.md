@@ -110,7 +110,7 @@ Our project requires libraries, listed in the requirements.txt file. Install the
 
 ### Getting started with Candoor!
 1. Once the tigergraph database has been setup, navigate to the project directory 
-`cd .\candoor\`
+`cd .\project\`
 3. Run app.py.
 ` python app.py`
 5. When the app says it's running, open your browser of choice and head to http://localhost:5000 to access Candoor.
