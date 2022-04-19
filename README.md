@@ -109,10 +109,13 @@ Our project requires libraries, listed in the requirements.txt file. Install the
  1. Run main.py with the command `python main.py`. This creates the graph schema, and installs all of the tigergraph queries. Please be patient, in our tests, it took us about 40mins for the code to run.  as tigergraph takes time to install the queries so they can be run super fast later on.
 
 ### Getting started with Candoor!
-1. Once the tigergraph database has been setup, run app.py.
-2. When the app says it's running, open your browser of choice and head to http://localhost:5000 to access Candoor.
-3. Alternatively,  enter the address stated after "wsgi starting up on" into your browser.
-4. You may create a new profile, or log on with "audreybot@candoor.com" with the password "password". Please note that we only created a limited number of test profiles, so searching your preferred aspiration/expertise may not populate any search resutls. Some suggested searches are "Engineering" and "Computer Science" to match with our dummy accounts.
+1. Once the tigergraph database has been setup, navigate to the project directory 
+`cd .\candoor\`
+3. Run app.py.
+` python app.py`
+5. When the app says it's running, open your browser of choice and head to http://localhost:5000 to access Candoor.
+6. Alternatively,  enter the address stated after "wsgi starting up on" into your browser.
+7. You may create a new profile, or log on with "audreybot@candoor.com" with the password "password". Please note that we only created a limited number of test profiles, so searching your preferred aspiration/expertise may not populate any search resutls. Some suggested searches are "Engineering" and "Computer Science" to match with our dummy accounts.
 
 ## Known Issues and Future Improvements
 
