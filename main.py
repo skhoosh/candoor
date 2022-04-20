@@ -4,16 +4,19 @@ import pyTigerGraph as tg
 print("Starting...")
 
 import sqlite3
-conn = sqlite3.connect(r'project/db.sqlite')
-c = conn.cursor()
+import csv
+from werkzeug.security import generate_password_hash
 
-c.execute(
+conn_sql = sqlite3.connect(r'project/db.sqlite')
+c_sql = conn_sql.cursor()
+
+c_sql.execute(
     '''
     DROP TABLE IF EXISTS user;
     '''
 )
 
-c.execute(
+c_sql.execute(
     '''
     CREATE TABLE user 
     ( `id` INTEGER NOT NULL, 
@@ -24,8 +27,30 @@ c.execute(
     PRIMARY KEY(`id`) )
     '''
 )
-conn.commit()
-conn.close()
+
+with open("Data/user.csv", "r") as user_file:
+    user_file_reader = csv.reader(user_file, delimiter=",")
+    line_count = 0
+    for row in user_file_reader:
+        user_id = row[0]
+        email = row[2]
+        name = row[1]
+        password = generate_password_hash(row[3], method='sha256')
+
+        c_sql.execute(
+            f'''
+            INSERT INTO user (
+                id, email, password, name, tg_id
+            ) 
+            VALUES 
+            (
+                "{user_id}", "{email}", "{password}", "{name}", "{user_id}"
+            )
+            '''
+        ) 
+
+conn_sql.commit()
+conn_sql.close()
 
 conn = tg.TigerGraphConnection(host = hostName, username = userName, password = password)
 

@@ -153,11 +153,11 @@ def signup_post():
     country = request.form.get('country')
     created_date = date.today().strftime("%Y-%m-%d")
 
-    user_attributes = {
-        "username": name,
-        "email": email,
-        "date_created": created_date
-    }
+    # user_attributes = {
+    #     "username": name,
+    #     "email": email,
+    #     "date_created": created_date
+    # }
 
     # check if user exists
     user = User.query.filter_by(email=email).first()
@@ -170,6 +170,7 @@ def signup_post():
     createNewUser(name, email, password, gender, country)
     # conn.upsertVertex('person', user_id, user_attributes)
 
+    # add user to sqlite database
     # create a new user with form data. Hash password.
     new_user = User(tg_id=user_id, email=email, name=name,
                     password=password)
@@ -228,7 +229,7 @@ def edit_about_me():
     personid = current_user.tg_id
     if request.files["profilePicture"]:
         profilePicture = request.files["profilePicture"]
-        profilePictureFilename = f"{personid}_pp.jpg"
+        profilePictureFilename = f"User{personid}.jpg"
         full_filename = os.path.join(
             app.config['UPLOAD_FOLDER'], profilePictureFilename)
         profilePicture.save(full_filename)
