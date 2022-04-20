@@ -307,4 +307,3 @@ def getConnectionDegree(personid, otherpersonid):
 
     return results[0]["@@connection"]
 
-
