@@ -1,12 +1,15 @@
-1,"engineering",1,"I've done validation engineering for 5 years. Feel free to ask.",4,True
-2,"computer science",1,"I'm pretty good at python.",4,False
-2,"machine learning",2,"I use ML and GIS at work.",3,True
-3,"writing",1,"I'm a published author who works as a lawyer by day.",4,True
-3,"law",2,"The job that pays the bills. 10 years experience.",4,False
-3,"art",3,"I'm just starting out, but I have accumulated a lot of resources to help fellow newbies out.",1,True
-4,"medicine",1,"I've performed 1000 successful heart surgeries. AMA.",4,True
-5,"networking",1,"I like to network. I can give you tips on how to get started.",4,True
-5,"finance",2,"I'm in the finance industry for 2 years now.",2,True
+1,"Engineering",1,"Feel free to ask about my day to day if you are thinking of being a validation engineer and wonder what they do.",4,True
+1,"Computer Science",2,"I'm pretty good at python, and use it frequently to automate tasks at my job. There are a lot of free resources to learn programming, and I can guide you on where you can get started if it's something you're keen to learn.",4,True
+2,"GIS",1,"I'm a geospatial specialist that believes in the power of location. If you want to get started, I could point you in the direction of some good resources.",3,True
+2,"Web development",2,"I learnt most of this online. I may have some good resources and tips to help you on your learning journey too!",1,True
+3,"Writing",1,"I'm a published author who works as a nurse during the day. I am happy to connect with fellow writers (new or old) and would just really like to talk about writing, really.",3,True
+3,"Nursing",2,"The job that pays the bills. 10 years experience. Unfortunately I do still care, and if you want to work in a criminally underappreciated career, you can definitely hit me up on how to get started.",3,True
+4,"Watercolour",1,"My perfect Sunday is spent with a cup of coffee, a slice of cake and painting watercolour flowers. Watercolour flowers are so vibrant and easy to paint. It's the perfect way to de-stress after a long week.",4,True
+4,"Acrylic",2,"Acrylic is a very forgiving medium. Explore any subject your heart desires. I can guide you through how to get started and recommend good paints/brushes and paper to use.",4,True
+4,"Sketching",3,"Sketching forms the basis of all art.",4,True
+5,"Networking",1,"I like to network, and I can give you tips on how to get started on building your own network/following.",4,True
+5,"Finance",2,"I have helped many satisfied clients build out their portfolio and increase their wealth. I'm willing to share my personal tips with those that want to learn more.",4,True
 6,"Yoga",1,"I started learning yoga in 2009, and have been teaching yoga for 10 years now. I specialize in Hatha yoga, and believe strongly in yoga as a great form of exercise for both the body and the spirit. If you have any questions about my yoga journey, I am happy to share my experiences and guide you on your own path.",3,True
 7,"Art",1,"I've been making lots of sketches of the Wabash River recently. The bridges there fascinate me!",1,True
 9,"Yoga",1,"I'm still a beginner in yoga, but I've found the practice very relaxing and would like to encourage others if you are interested in it to pick it up.",1,True
+10,"Engineering",1,"I'm keen to share on my work experiences in the Civil Engineering field. I have exciting stories to tell of the times I've been on site. Seeing huge Civil Engineering projects being built is always thrilling!",3,True
