@@ -331,13 +331,13 @@ if installQueries:
 
         SumAccum<INT> @@sp_edge_count;
 
-        # delete speciality vertex if this person is the only one using the vertex
+        # delete speciality vertex if it is not longer being used
         result2 = SELECT s FROM result:s - (:e) - person:p
             ACCUM
                 @@sp_edge_count += 1
             
             POST-ACCUM
-                IF @@sp_edge_count == 1 THEN
+                IF @@sp_edge_count == 0 THEN
                     DELETE (s)
                 END;
     }
@@ -387,7 +387,7 @@ if installQueries:
                 @@sp_edge_count += 1
 
             POST-ACCUM
-                IF @@sp_edge_count == 1 THEN
+                IF @@sp_edge_count == 0 THEN
                     DELETE (s)
                 END;
     }
@@ -424,13 +424,13 @@ if installQueries:
 
         SumAccum<INT> @@sp_edge_count;
 
-        # delete speciality vertex if this person is the only one using the vertex
+        # delete speciality vertex if it is not longer being used
         result2 = SELECT s FROM result:s - (:e) - person:p
             ACCUM
                 @@sp_edge_count += 1
             
             POST-ACCUM
-                IF @@sp_edge_count == 1 THEN
+                IF @@sp_edge_count == 0 THEN
                     DELETE (s)
                 END;
     }
