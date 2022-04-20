@@ -161,24 +161,26 @@ For the "Instance Settings" page, you may choose your desired cloud platform and
 
 For the "Solution Settings" page, set the "Name your Solution" to "candoor", "Set the Initial Password" to "password". You may choose to set your own "Subdomain" name or leave it blank to let TigerGraph assign one to you.
 
+##### 6. Confirmation 
+
 Confirm and submit. TigerGraph will set-up your new instance. 
 
-##### 6. Wait for solution to be "Ready" 
+##### 7. Wait for solution to be "Ready" 
 
 Refresh the page. TigerGraph will process your submission and you should see a yellow circle indicating that it's "processing". It will turn green when it's "ready".
 
-##### 7. Get "Domain" address of your solution 
+##### 8. Get "Domain" address of your solution 
 
-Go back to the "My Solutions" page, and take a look at your solution. Click on the "candoor", the name of your solution, to bring down a tab to see the details of your database. Take note of the "Domain" address listed. You will need to use this info later on in step 9.
+Go back to the "My Solutions" page, and take a look at your solution. Click on the "candoor", the name of your solution, to bring down a tab to see the details of your database. Take note of the "Domain" address listed. You will need to use this info later on in step 10.
 
-##### 8. Check status of solution 
+##### 9. Check status of solution 
 If the Status of your solution is set to a blue circle and "stopped", click on the "Solutions Operations" icon ![image](https://user-images.githubusercontent.com/12766571/163662412-58887c92-c81b-4ce1-866e-06665dfb0000.png) of your solution and click "Start". It takes a few minutes for TigerGraph to start-up the solution. 
 
 When the database is ready, circle will turn green, the status will say "ready" and the "Applications" icon ![image](https://user-images.githubusercontent.com/12766571/163662332-0e1e3907-c973-4fca-ab6b-6940d0e8206f.png) under "Actions" will turn blue. You may click on the "Applications" icon and "GraphStudio" to see the TigerGraph database.
 
 ##### 9. Update the tigergraph_settings.py file
 
-In [tigergraph_settings.py](tigergraph_settings.py), change the variable "hostName" to the domain name you found in step 7. Please keep the "https://" as the first part of the hostName. 
+In [tigergraph_settings.py](tigergraph_settings.py), change the variable "hostName" to the domain name you found in step 8. Please keep the "https://" as the first part of the hostName. 
 
 In tigergraph_settings.py, change the variable "hostName" to the domain name you found in step 9. Please keep the "https://" as the first part of the hostName.
 
