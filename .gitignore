@@ -6,3 +6,5 @@
 __pycache__/
 temp.html
 project/__pycache__/app.cpython-38.pyc
+db.sqlite
+temp.py
