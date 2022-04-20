@@ -35,7 +35,7 @@ with open("Data/user.csv", "r") as user_file:
         user_id = row[0]
         email = row[2]
         name = row[1]
-        password = generate_password_hash(row[3], method='sha256')
+        pw = generate_password_hash(row[3], method='sha256')
 
         c_sql.execute(
             f'''
@@ -44,7 +44,7 @@ with open("Data/user.csv", "r") as user_file:
             ) 
             VALUES 
             (
-                "{user_id}", "{email}", "{password}", "{name}", "{user_id}"
+                "{user_id}", "{email}", "{pw}", "{name}", "{user_id}"
             )
             '''
         ) 
