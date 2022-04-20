@@ -31,6 +31,8 @@ For our project, we want to help facilitate and foster these meaningful relation
 
 Candoor is a social networking site for people who would like to share or connect with others for anything from professional industry advice to tips for pursuing a hobby in a candid and informal way. Users fill out their profiles with what they are able to share about as well as what they want to learn more about. Harnessing the power of TigerGraph, we then perform the best match possible. Join Candoor to help someone by sharing your knowledge. Or come learn something new from someone. Candoor let’s us all expand our horizons. 
 
+#### Watch the Candoor Demo: 
+
 [![Watch the video](https://user-images.githubusercontent.com/49808635/164234521-22824591-1cbb-44a1-98d8-93c1ff9e7648.png)](https://youtu.be/azPHBq1nU-8 )
 
 
