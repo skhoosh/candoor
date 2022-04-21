@@ -179,11 +179,9 @@ If the Status of your solution is set to a blue circle and "stopped", click on t
 
 When the database is ready, circle will turn green, the status will say "ready" and the "Applications" icon ![image](https://user-images.githubusercontent.com/12766571/163662332-0e1e3907-c973-4fca-ab6b-6940d0e8206f.png) under "Actions" will turn blue. You may click on the "Applications" icon and "GraphStudio" to see the TigerGraph database.
 
-##### 9. Update the tigergraph_settings.py file
+##### 10. Update the tigergraph_settings.py file
 
 In [tigergraph_settings.py](tigergraph_settings.py), change the variable "hostName" to the domain name you found in step 8. Please keep the "https://" as the first part of the hostName. 
-
-In tigergraph_settings.py, change the variable "hostName" to the domain name you found in step 9. Please keep the "https://" as the first part of the hostName.
 
 ---
 
