@@ -236,11 +236,23 @@ h3 {
   /* width: 100%; */
   /* padding: 5px; */
   margin: 5px;
+  padding: 5px;
   display: block;
+  /* border: 1px solid #dbdbdb; */
+  border-radius: 3px;
+  color: white;
+  background-color: #32323eff;
+  text-align: center;
+  
+}
+
+.chatPerson form {
+  display: inline-block;
 }
 
 .chatPerson button {
-  width: 100%
+  /* width: 100% */
+  display: inline-block;
 }
 
 .chatBox {

@@ -5,25 +5,29 @@
     <div class="row messagesContainer">
         <div class="col-4 chatPeople">
             <div class="chatPeopleLabel">
-                <h4>Friends</h4>
+                <h4>Message List</h4>
             </div>
             {% for row in friends_list %}
             <div class="chatPerson">
+                <h4 style="display:inline-block; padding: 5px; margin-bottom:0;"> {{ row.name }} </h4>
+                <button id="viewProfile" class="btn btn-dark" onclick="location.href='/profile/{{ row.id }}'">                   Profile</button>
+
                 <form action="/chat_home">
                     {% if personid | int < row.id | int %} <input type="hidden" id="room_id" name="room"
                         value="{{ personid }}_to_{{ row.id }}">
                         <input type="hidden" name="friend_id" value="{{ row.id }}">
                         <button type="submit" id="{{ personid }}_to_{{ row.id }}" class="btn btn-dark">
-                            {{ row.name }}
+                            Chat 
                         </button>
                         {% else %}
                         <input type="hidden" id="room_id" name="room" value="{{ row.id }}_to_{{ personid }}">
                         <input type="hidden" name="friend_id" value="{{ row.id }}">
                         <button type="submit" id="{{ row.id }}_to_{{ personid }}" class="btn btn-dark">
-                            {{ row.name }}
+                           Chat 
                         </button>
                         {% endif %}
                 </form>
+       
             </div>
 
             {% endfor %}
