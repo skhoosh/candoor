@@ -98,7 +98,7 @@ For this project, we used python version 3.10.0 on Windows, TigerGraph version 3
 ### Installation
 
 Watch our installation guide here:
-[![Watch the video](https://user-images.githubusercontent.com/12766571/164311597-c358d6db-a7d3-4c05-ae41-cf4502060c3a.png)](https://youtu.be/yinW84VmnmI)
+https://youtu.be/yinW84VmnmI
 
 ---
 
