@@ -97,7 +97,8 @@ For this project, we used python version 3.10.0 on Windows, TigerGraph version 3
 
 ### Installation
 
-Watch our installation guide here: 
+Watch our installation guide here:
+[![Watch the video](https://user-images.githubusercontent.com/12766571/164311597-c358d6db-a7d3-4c05-ae41-cf4502060c3a.png)](https://youtu.be/yinW84VmnmI)
 
 ---
 
@@ -221,7 +222,7 @@ You may sign-up with Candoor and create a new profile.
 
 ##### 2. Or use our example account 
 Alternatively, you may log on with the following credentials to access a pre-made profile: 
-**Email:** audreybot@candoor.com
+**Email:** audrey@candoor.com
 **Password:** password
 
 Please note that we only created a limited number of test profiles, so searching for your preferred aspiration/expertise may not populate any search results. Some suggested searches are "Engineering", "Computer Science" and "Yoga" to match with our dummy accounts. 
@@ -259,9 +260,3 @@ https://www.youtube.com/playlist?list=PLq4l3NnrSRp6VqoDA5BV95XVEHp30Eexx
 The TigerGraph documentation also helped a bunch: 
 GSQL Language Reference - https://docs.tigergraph.com/gsql-ref/current/intro/intro 
 pyTigerGraph - https://pytigergraph.github.io/pyTigerGraph/ 
-
-
----
-Thank you :>
-
-
